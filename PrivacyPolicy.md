@@ -8,7 +8,7 @@ Welcome to the **Commie Privacy Policy**. This Privacy Policy is intended to inf
 # Policies
 ## 1. Message Data Collection
 
-Commie may collect limited message data solely for the purpose of recognizing when a command is used. This data does not include the content of messages and is used exclusively to improve the bot's functionality. We do not collect or store any invasive or personally identifiable information.
+Commie may collect limited message data solely for the purposes of recognizing when a command is used or triggering bot events. This data may include the content of messages and is used exclusively to improve the bot's functionality. We do not collect or store any invasive or personally identifiable information.
 
 ## 2. Opting Out
 
