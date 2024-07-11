@@ -1,13 +1,13 @@
 # 📋 Command List
-This is a list of all **Commie** commands, a description, and their usage.
+This is a list of all **Commie** commands, a description, their usage, and the minimum role required to use them.
+
+The "role required" in the tables below shows the lowest role required to ***use*** the command, for example, if it lists "Member" as the **Role Required**, then everyone with "Member" role and above (Helpers, Moderators and Admins) can use the role.
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
 **Command Count:** `94`
 
 ## ⚖️ Roles
-
-The "role required" in the tables below shows the lowest role required to ***use*** the command, for example, if it lists "Member" as the **Role Required**, then everyone with "Member" role and above (Helpers, Moderators and Admins) can use the role.
 
 | Role Name |
 |-----------|
