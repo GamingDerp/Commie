@@ -7,7 +7,7 @@
 
 # 🌌 Commie 🌌
 ***Commie*** is a multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy!
-> **Command List:** [Here]()
+> **Command List:** [Here](https://github.com/GamingDerp/Commie/blob/main/COMMANDS.md)
 
 # 📑 Credit
 - `gamingderp` - Developer
