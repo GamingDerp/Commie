@@ -28,7 +28,7 @@ vote | Sends **Commie's** voting links | `vote` | Member
 test | Tests if the bot is up | `test` | Member
 ping | Shows a users ping | `ping` | Member
 suggest | Lets users make a suggestion for the server | `suggest <suggestion>` | Member
-poll | Creates a poll | `poll` | Moderator
+poll | Creates a poll | `poll <question> <option1> <option2> <option3> <option4> <option5>` | Moderator
 
 ## 🎉 Fun
 Command | Description | Usage | Role Required
