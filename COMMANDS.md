@@ -37,7 +37,7 @@ coinflip | Flips a coin | `coinflip` | Member
 ask | Gives an answer to your question | `ask` | Member
 reverse | Reverses a users text | `reverse <text>` | Member
 say | Says the users input text | `say <text>` | Member
-lovetest | Gives a love percentage between two users | `lovetest` | Member
+lovetest | Gives a love percentage between two users | `lovetest <user1> <user2>` | Member
 cute | Sends a picture of a cute animal | `cute` | Member
 
 ## 🎯 Action
