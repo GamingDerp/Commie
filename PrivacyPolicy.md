@@ -12,11 +12,11 @@ Commie may collect limited message data solely for the purposes of recognizing w
 
 ## 2. Opting Out
 
-Users cannot opt out of message data collection since no data is stored or used for any purpose beyond immediate command recognition. The data collected is transient and not linked to any specific user or server.
+Users cannot opt out of message data collection since no data is stored or used for any purpose beyond immediate command recognition or event triggering. The data collected is transient and not linked to any specific user or server.
 
 ## 3. Data Retention
 
-Commie does not retain any message data long-term. The transient data collected for command recognition is not stored beyond the immediate need to process the command.
+Commie does not retain any message data long-term. The transient data collected for command recognition is not stored beyond the immediate need to process the command or trigger an event.
 
 ## 4. User Rights
 
