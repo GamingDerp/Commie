@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `94`
+**Command Count:** `95`
 
 ## ⚖️ Roles
 
@@ -85,6 +85,7 @@ emojiadd | Adds an emoji to the server | `emojiadd <name>` | Admin
 emojidel | Deletes an emoji from the server | `emojidel <name> <id>` | Admin
 emojiinfo | Sends information about an emoji | `emojiinfo <name> <id>` | Member
 emojirename | Renames an emoji | `emojirename <id> <new_name>` | Admin
+stickersteal | Grabs and sends the file link from a sticker | `stickersteal` | Member
 stickeradd | Adds a sticker to the server | `stickeradd` | Admin
 stickerdel | Deletes a sticker from the server | `stickerdel <name> <id>` | Admin
 stickerinfo | Shows information about a sticker | `stickerinfo <name> <id>` | Member
