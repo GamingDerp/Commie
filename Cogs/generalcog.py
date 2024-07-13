@@ -43,7 +43,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
+    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -68,7 +68,7 @@ class Dropdown(discord.ui.Select):
             discord.SelectOption(label="General Commands",description="Help, Info, Test, Ping, Suggest +3 More", emoji="📌"),
             discord.SelectOption(label="Fun Commands", description="Coinflip, Ask, Reverse, Say, Lovetest +1 More", emoji="🎉"),
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
-            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +15 More", emoji="🧮"),
+            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +16 More", emoji="🧮"),
             discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +13 More", emoji="🔰"),
             discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +13 More", emoji="⚙️"),
         ]
@@ -171,7 +171,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [94]"
+                value=f"> **Commands:** [95]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
