@@ -773,9 +773,9 @@ class ConfigCog(commands.Cog):
                 e.add_field(name="🚫 Leave Messages", value="❌ **Disabled**", inline=False)
             if boost_enabled:
                 boost_channel = f"**Channel:** {ctx.guild.get_channel(boost_channel_id).mention}" if boost_channel_id and ctx.guild.get_channel(boost_channel_id) else "**Channel:** **None**"
-                e.add_field(name="<a:Boost:1258934863529246762> Boost Messages", value=f"> {boost_channel}", inline=False)
+                e.add_field(name="<a:Boost:1261831287786704966> Boost Messages", value=f"> {boost_channel}", inline=False)
             else:
-                e.add_field(name="<a:Boost:1258934863529246762> Boost Messages", value="❌ **Disabled**", inline=False)
+                e.add_field(name="<a:Boost:1261831287786704966> Boost Messages", value="❌ **Disabled**", inline=False)
             await ctx.send(embed=e)
         except Exception as e:
             print(e)
