@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `95`
+**Command Count:** `97`
 
 ## ⚖️ Roles
 
@@ -124,6 +124,7 @@ togglestar | Toggles the starboard feature for a server | `togglestar` | Admin
 togglewelcome | Toggles the welcome message feature for a server | `togglewelcome` | Admin
 toggleleave | Toggles the leave message feature for a server | `toggleleave` | Admin
 toggleboost | Toggles the boost message feature for a server | `toggleboost` | Admin
+toggleautorole | Toggles the auto role feature for a server | `toggleautorole` | Admin
 setprefix | Sets server prefix | `setprefix <prefix>` | Admin
 setlog | Sets server logging channel | `setlog <channel mention>` | Admin
 setstaff | Sets the staff roles for a server | `setstaff` | Admin
@@ -132,6 +133,7 @@ setstar | Sets server starboard channel | `setstar <channel mention>` | Admin
 setwelcome | Sets the welcome message for a server | `setwelcome` | Admin
 setleave | Sets the leave message for a server | `setleave` | Admin
 setboost | Sets the boost message for a server | `setboost` | Admin
+setautorole | Sets the auto roles for a server | `setautorole` | Admin
 testwelcome | Sends the welcome message for a server | `testwelcome` | Admin
 testleave | Sends the leave message for a server | `testleave` | Admin
 testboost | Sends the boost embed for a server | `testboost` Admin
