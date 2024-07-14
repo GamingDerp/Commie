@@ -50,7 +50,13 @@ class ConfigCog(commands.Cog):
                     boost_perk_7 TEXT,
                     boost_perk_8 TEXT,
                     boost_perk_9 TEXT,
-                    boost_perk_10 TEXT
+                    boost_perk_10 TEXT,
+                    toggle_autorole BOOLEAN,
+                    role1 INTEGER,
+                    role2 INTEGER,
+                    role3 INTEGER,
+                    role4 INTEGER,
+                    role5 INTEGER
                 )
             ''')
             await db.commit()
@@ -700,7 +706,7 @@ class ConfigCog(commands.Cog):
             return
         channel = self.bot.get_channel(boost_channel_id)
         e = discord.Embed(color=boost_color)
-        e.title = f"<a:Boost:1258934863529246762> {ctx.author.name} boosted the server!"
+        e.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
         e.set_thumbnail(url=ctx.author.avatar.url)
         e.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
         if any(perks):
@@ -709,6 +715,71 @@ class ConfigCog(commands.Cog):
                 if perk:
                     e.description += f"> {perk}\n"
         await ctx.send(embed=e)
+
+    @commands.hybrid_command(description="Toggle the autorole feature")
+    async def toggleautorole(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            autorole_enabled = config.get('toggle_autorole', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="🤖 Autorole", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the autorole feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not autorole_enabled:
+                    await interaction.response.send_message("Autorole is already disabled!", ephemeral=True)
+                    await initial_message.delete()
+                    return
+                config['toggle_autorole'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_autorole'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been enabled, to set it up do `setautorole`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @commands.hybrid_command(description="Set autoroles for the server")
+    async def setautorole(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            await ctx.send(f"Mention your first **Auto Role** for **{ctx.guild.name}**! Say '**done**' to move to the next role! Say '**complete**' if that's all your roles!")
+            roles = []
+            def check(msg):
+                return msg.author == ctx.author and msg.channel == ctx.channel
+            while len(roles) < 5:
+                msg = await self.bot.wait_for('message', check=check)
+                if msg.content.lower() == 'complete':
+                    break
+                if msg.role_mentions:
+                    roles.append(msg.role_mentions[0])
+                    await ctx.send(f"Role collected. Mention the next role or say '**complete**'.")
+                else:
+                    await ctx.send("Please mention a valid role.")
+            config = await self.get_config(ctx.guild.id) or {}
+            for i, role in enumerate(roles):
+                config[f'role{i+1}'] = role.id
+            await self.save_config(ctx.guild.id, config)
+            role_mentions = ', '.join([role.mention for role in roles])
+            await ctx.send(f"All auto roles for **{ctx.guild.name}** have been collected! \n> {role_mentions}")
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="View the server configurations")
     async def configs(self, ctx):
@@ -737,6 +808,9 @@ class ConfigCog(commands.Cog):
             leave_channel_id = config.get('leave_channel')
             boost_enabled = config.get('toggle_boost', False)
             boost_channel_id = config.get('boost_channel')
+            autorole_enabled = config.get('toggle_autorole', False)
+            roles = [config.get(f'role{i}') for i in range(1, 6)]
+            roles_mentions = ', '.join([ctx.guild.get_role(role_id).mention for role_id in roles if role_id])
             e = discord.Embed(color=commie_color)
             e.set_author(name=f"{ctx.guild.name} Configurations", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
             e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
@@ -749,33 +823,37 @@ class ConfigCog(commands.Cog):
                 logging_channel = f"**Channel:** {ctx.guild.get_channel(logging_channel_id).mention}" if logging_channel_id and ctx.guild.get_channel(logging_channel_id) else "**Channel:** **None**"
                 e.add_field(name="🗃 Logging", value=f"> {logging_channel}", inline=False)
             else:
-                e.add_field(name="🗃 Logging", value="❌ **Disabled**", inline=False)
+                e.add_field(name="🗃 Logging", value="> ❌ **Disabled**", inline=False)
             if suggestions_enabled:
                 suggestions_channel = f"**Channel:** {ctx.guild.get_channel(suggestions_channel_id).mention}" if suggestions_channel_id and ctx.guild.get_channel(suggestions_channel_id) else "**Channel:** **None**"
                 e.add_field(name="💡 Suggestions", value=f"> {suggestions_channel}", inline=False)
             else:
-                e.add_field(name="💡 Suggestions", value="❌ **Disabled**", inline=False)
+                e.add_field(name="💡 Suggestions", value="> ❌ **Disabled**", inline=False)
             if starboard_enabled:
                 starboard_channel = f"**Channel:** {ctx.guild.get_channel(starboard_channel_id).mention}" if starboard_channel_id and ctx.guild.get_channel(starboard_channel_id) else "**Channel:** **None**"
                 starboard_count = f"**Star Count:** {star_count}" if star_count else "**Star Count:** **None**"
                 e.add_field(name="⭐ Starboard", value=f"> {starboard_channel}\n> {starboard_count}", inline=False)
             else:
-                e.add_field(name="⭐ Starboard", value="❌ **Disabled**", inline=False)
+                e.add_field(name="⭐ Starboard", value="> ❌ **Disabled**", inline=False)
             if welcome_enabled:
                 welcome_channel = f"**Channel:** {ctx.guild.get_channel(welcome_channel_id).mention}" if welcome_channel_id and ctx.guild.get_channel(welcome_channel_id) else "**Channel:** **None**"
                 e.add_field(name="👋 Welcome Messages", value=f"> {welcome_channel}", inline=False)
             else:
-                e.add_field(name="👋 Welcome Messages", value="❌ **Disabled**", inline=False)
+                e.add_field(name="👋 Welcome Messages", value="> ❌ **Disabled**", inline=False)
             if leave_enabled:
                 leave_channel = f"**Channel:** {ctx.guild.get_channel(leave_channel_id).mention}" if leave_channel_id and ctx.guild.get_channel(leave_channel_id) else "**Channel:** **None**"
                 e.add_field(name="🚫 Leave Messages", value=f"> {leave_channel}", inline=False)
             else:
-                e.add_field(name="🚫 Leave Messages", value="❌ **Disabled**", inline=False)
+                e.add_field(name="🚫 Leave Messages", value="> ❌ **Disabled**", inline=False)
             if boost_enabled:
                 boost_channel = f"**Channel:** {ctx.guild.get_channel(boost_channel_id).mention}" if boost_channel_id and ctx.guild.get_channel(boost_channel_id) else "**Channel:** **None**"
                 e.add_field(name="<a:Boost:1261831287786704966> Boost Messages", value=f"> {boost_channel}", inline=False)
             else:
-                e.add_field(name="<a:Boost:1261831287786704966> Boost Messages", value="❌ **Disabled**", inline=False)
+                e.add_field(name="<a:Boost:1261831287786704966> Boost Messages", value="> ❌ **Disabled**", inline=False)
+            if autorole_enabled:
+                e.add_field(name="🎭 AutoRoles", value=f"> {roles_mentions}", inline=False)
+            else:
+                e.add_field(name="🎭 AutoRoles", value="> ❌ **Disabled**", inline=False)
             await ctx.send(embed=e)
         except Exception as e:
             print(e)
