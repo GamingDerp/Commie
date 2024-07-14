@@ -98,19 +98,26 @@ class EventsCog(commands.Cog):
             print(e)
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_member_join(self, member):
         try:
             config = await self.get_config(member.guild.id)
             if not config:
                 return
-            leave_status = config.get("toggle_leave")
-            leave_channel_id = config.get("leave_channel")
-            leave_message = config.get("leave_message")
-            if leave_status and leave_channel_id and leave_message:
-                leave_channel = self.bot.get_channel(leave_channel_id)
-                if leave_channel:
-                    leave_text = leave_message.format(name=member.name, mention=member.mention, server=member.guild.name)
-                    await leave_channel.send(leave_text)
+            welcome_status = config.get("toggle_welcome")
+            welcome_channel_id = config.get("welcome_channel")
+            welcome_message = config.get("welcome_message")
+            if welcome_status and welcome_channel_id and welcome_message:
+                welcome_channel = self.bot.get_channel(welcome_channel_id)
+                if welcome_channel:
+                    welcome_text = welcome_message.format(name=member.name, mention=member.mention, server=member.guild.name)
+                    await welcome_channel.send(welcome_text)
+            autorole_status = config.get("toggle_autorole")
+            if autorole_status:
+                role_ids = [config.get(f'role{i}') for i in range(1, 6)]
+                roles = [member.guild.get_role(int(role_id)) for role_id in role_ids if role_id]
+                for role in roles:
+                    if role:
+                        await member.add_roles(role)
         except Exception as e:
             print(e)
 
