@@ -59,7 +59,7 @@ ce.set_author(name="Commie Commands", icon_url=commie_logo)
 ce.set_thumbnail(url=commie_logo)
 ce.add_field(
     name="⚙️ __Config Commands__",
-    value=f"> `SetPrefix`, `SetStaff`, `SetLog`, `SetSuggest`, `SetStar`, `SetWelcome`, `SetLeave`, `SetBoost`, `ToggleLog`, `ToggleSuggest`, `ToggleStar`, `ToggleWelcome`, `ToggleLeave`, `ToggleBoost`, `TestWelcome`, `TestLeave`, `TestBoost`, `Configs`",
+    value=f"> `SetPrefix`, `SetStaff`, `SetLog`, `SetSuggest`, `SetStar`, `SetWelcome`, `SetLeave`, `SetBoost`, `SetAutoRole`, `ToggleLog`, `ToggleSuggest`, `ToggleStar`, `ToggleWelcome`, `ToggleLeave`, `ToggleBoost`, `ToggleAutoRole`, `TestWelcome`, `TestLeave`, `TestBoost`, `Configs`",
 )
 
 class Dropdown(discord.ui.Select):
@@ -70,7 +70,7 @@ class Dropdown(discord.ui.Select):
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
             discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +16 More", emoji="🧮"),
             discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +13 More", emoji="🔰"),
-            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +13 More", emoji="⚙️"),
+            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +15 More", emoji="⚙️"),
         ]
         super().__init__(min_values=1, max_values=1, options=options)
 
@@ -171,7 +171,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [95]"
+                value=f"> **Commands:** [97]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
