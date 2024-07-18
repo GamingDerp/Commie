@@ -126,10 +126,10 @@ toggleleave | Toggles the leave message feature for a server | `toggleleave` | A
 toggleboost | Toggles the boost message feature for a server | `toggleboost` | Admin
 toggleautorole | Toggles the auto role feature for a server | `toggleautorole` | Admin
 setprefix | Sets server prefix | `setprefix <prefix>` | Admin
-setlog | Sets server logging channel | `setlog <channel mention>` | Admin
+setlog | Sets server logging channel | `setlog` | Admin
 setstaff | Sets the staff roles for a server | `setstaff` | Admin
-setsuggest | Sets server suggestion channel | `setsuggest <channel mention>` | Admin
-setstar | Sets server starboard channel | `setstar <channel mention>` | Admin
+setsuggest | Sets server suggestion channel | `setsuggest` | Admin
+setstar | Sets server starboard channel | `setstar` | Admin
 setwelcome | Sets the welcome message for a server | `setwelcome` | Admin
 setleave | Sets the leave message for a server | `setleave` | Admin
 setboost | Sets the boost message for a server | `setboost` | Admin
