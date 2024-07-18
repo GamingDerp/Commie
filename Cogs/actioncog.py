@@ -40,7 +40,7 @@ class ActionCog(commands.Cog):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **bonks** {user.mention}!"
         bonkgifs = [
-            "https://media.discordapp.net/attachments/807071768258805764/1109240042238513233/BonkGif.gif", 
+            "https://media.discordapp.net/attachments/807071768258805764/1109240042238513233/BonkGif.gif",
             "https://media.discordapp.net/attachments/807071768258805764/1124387823076769863/Bonk2Gif.gif"
         ]
         e.set_image(url=random.choice(bonkgifs)),
@@ -50,70 +50,70 @@ class ActionCog(commands.Cog):
     async def slap(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **slaps** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106847432907685928/AnimeSlappingGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106847432907685928/AnimeSlappingGif.gif")
         await ctx.send(embed=e)
         
     @commands.hybrid_command(description="Punch another user")
     async def punch(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **punches** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1131018538577039390/PunchingGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1131018538577039390/PunchingGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Throw another user")
     async def throw(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **throws** {user.mention} **off a cliff!**"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1116579751897878558/ThrowGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1116579751897878558/ThrowGif.gif")
         await ctx.send(embed=e)
     
     @commands.hybrid_command(description="Punt another user")
     async def punt(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **punts** {user.mention}!"
-        e.set_image(url="https://cdn.discordapp.com/attachments/807071768258805764/1123844694888165417/KickGif.gif"),
+        e.set_image(url="https://cdn.discordapp.com/attachments/807071768258805764/1123844694888165417/KickGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Highfive another user")
     async def highfive(self, ctx, user:discord.Member): 
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **highfives** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106851182279934072/AnimeHighfiveGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106851182279934072/AnimeHighfiveGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Poke another user")
     async def poke(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **pokes** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1117137231950401617/PokeGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1117137231950401617/PokeGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Pat another user")
     async def pat(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **pats** {user.mention}!"
-        e.set_image(url="https://cdn.discordapp.com/attachments/807071768258805764/1106851615320846386/AnimePatGif.gif"),
+        e.set_image(url="https://cdn.discordapp.com/attachments/807071768258805764/1106851615320846386/AnimePatGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Hug another user")
     async def hug(self, ctx, user:discord.Member):  
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **hugs** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106847914019536926/AnimeHuggingGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106847914019536926/AnimeHuggingGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Kiss another user")
     async def kiss(self, ctx, user:discord.Member):
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **kisses** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106848342966800404/AnimeKissingGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106848342966800404/AnimeKissingGif.gif")
         await ctx.send(embed=e)
 
     @commands.hybrid_command(description="Cuddle with another user")
     async def cuddle(self, ctx, user:discord.Member): 
         e = discord.Embed(color=commie_color)
         e.description = f"{ctx.author.mention} **cuddles with** {user.mention}!"
-        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106848675025666128/AnimeCuddlingGif.gif"),
+        e.set_image(url="https://media.discordapp.net/attachments/807071768258805764/1106848675025666128/AnimeCuddlingGif.gif")
         await ctx.send(embed=e)
 
 async def setup(bot):
