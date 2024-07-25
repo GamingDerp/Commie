@@ -352,16 +352,21 @@ class MiscCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Add a task to your to-do list")
-    async def todoadd(self, ctx, *, task):
+    @commands.hybrid_group(name="todo", description="Todo list commands")
+    async def todo_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            return
+
+    @todo_group.command(name="add", description="Add a task to your to-do list")
+    async def add(self, ctx, *, task):
         author_id = ctx.author.id
         async with aiosqlite.connect("dbs/todo.db") as db:
             await db.execute("INSERT INTO todos (user_id, todo) VALUES (?, ?)", (author_id, task))
             await db.commit()
         await ctx.send(f"Added **{task}** to your todo list!", ephemeral=True)
 
-    @commands.hybrid_command(description="Remove a task from your to-do list")
-    async def tododel(self, ctx, todo_num: int):
+    @todo_group.command(name="delete", description="Delete a task from your to-do list")
+    async def delete(self, ctx, todo_num: int):
         author_id = ctx.author.id
         async with aiosqlite.connect("dbs/todo.db") as db:
             cursor = await db.execute("SELECT rowid, todo FROM todos WHERE user_id = ?", (author_id,))
@@ -372,18 +377,18 @@ class MiscCog(commands.Cog):
             todo_id, todo_text = rows[todo_num - 1]
             await db.execute("DELETE FROM todos WHERE rowid = ?", (todo_id,))
             await db.commit()
-        await ctx.send(f"Removed **{todo_text}** from your todo list!", ephemeral=True)
+        await ctx.send(f"Deleted **{todo_text}** from your todo list!", ephemeral=True)
 
-    @commands.hybrid_command(description="Clear all tasks from your to-do list")
-    async def todoclear(self, ctx):
+    @todo_group.command(name="clear", description="Clear all tasks from your to-do list")
+    async def clear(self, ctx):
         author_id = ctx.author.id
         async with aiosqlite.connect("dbs/todo.db") as db:
             await db.execute("DELETE FROM todos WHERE user_id = ?", (author_id,))
             await db.commit()
         await ctx.send("Cleared all tasks from your todo list!", ephemeral=True)
 
-    @commands.hybrid_command(description="Look at your to-do list")
-    async def todolist(self, ctx):
+    @todo_group.command(name="list", description="Look at your to-do list")
+    async def list(self, ctx):
         author_id = ctx.author.id
         async with aiosqlite.connect("dbs/todo.db") as db:
             cursor = await db.execute("SELECT todo FROM todos WHERE user_id = ?", (author_id,))
@@ -406,16 +411,21 @@ class MiscCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Get the file link to an emoji")
-    async def emojisteal(self, ctx, emoji: discord.PartialEmoji):
+    @commands.hybrid_group(name="emoji", description="Emoji commands")
+    async def emoji_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            return
+
+    @emoji_group.command(name="steal", description="Get the file link to an emoji")
+    async def steal(self, ctx, emoji: discord.PartialEmoji):
         if emoji.id:
             emoji_url = emoji.url
             await ctx.send(f":link: {emoji_url}", ephemeral=True)
         else:
             await ctx.send("Please provide a custom emoji.", ephemeral=True)
 
-    @commands.hybrid_command(description="Add an emoji to the server")
-    async def emojiadd(self, ctx, name: str):
+    @emoji_group.command(name="add", description="Add an emoji to the server")
+    async def add(self, ctx, name: str):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -430,8 +440,8 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to add emoji", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Delete an emoji from the server")
-    async def emojidel(self, ctx, name: str = None, id: int = None):
+    @emoji_group.command(name="delete", description="Delete an emoji from the server")
+    async def delete(self, ctx, name: str = None, id: int = None):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -450,8 +460,8 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to delete emoji", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Get information about an emoji")
-    async def emojiinfo(self, ctx, name: str = None, id: int = None):
+    @emoji_group.command(name="info", description="Get information about an emoji")
+    async def info(self, ctx, name: str = None, id: int = None):
         emoji = None
         if name:
             emoji = discord.utils.get(ctx.guild.emojis, name=name)
@@ -468,8 +478,8 @@ class MiscCog(commands.Cog):
         e.set_thumbnail(url=emoji.url)
         await ctx.send(embed=e)
 
-    @commands.hybrid_command(description="Rename an emoji in the server")
-    async def emojirename(self, ctx, id: int, new_name: str):
+    @emoji_group.command(name="rename", description="Rename an emoji in the server")
+    async def rename(self, ctx, id: int, new_name: str):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -484,13 +494,40 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to rename emoji!", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Add a sticker to the server")
-    async def stickeradd(self, ctx):
+    @commands.hybrid_group(name="sticker", description="Sticker commands")
+    async def sticker_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            return
+
+    @sticker_group.command(name="steal", description="Get the file link to a sticker")
+    async def steal(self, ctx):
+        await ctx.send("Post the sticker you want to steal!", ephemeral=True)
+        def check_sticker(message):
+            return message.author == ctx.author and message.channel == ctx.channel and message.stickers
+        try:
+            sticker_message = await self.bot.wait_for('message', check=check_sticker, timeout=60)
+            sticker_item = sticker_message.stickers[0]
+            await sticker_message.delete()
+            sticker = await self.bot.fetch_sticker(sticker_item.id)
+            if sticker.format == discord.StickerFormatType.png:
+                sticker_url = sticker.url
+                await ctx.send(f":link: {sticker_url}", ephemeral=True)
+            elif sticker.format == discord.StickerFormatType.apng:
+                await ctx.send(f"Due to Discord not supporting it, I can't grab animated stickers, sorry!", ephemeral=True)
+            else:
+                await ctx.send("Unsupported sticker format.", ephemeral=True)
+        except asyncio.TimeoutError:
+            await ctx.send("You took too long to respond. Please try the command again.", ephemeral=True)
+        except Exception as e:
+            await ctx.send(f"Failed to fetch sticker URL.", ephemeral=True)
+            print(e)
+
+    @sticker_group.command(name="add", description="Add a sticker to the server")
+    async def add(self, ctx):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
         await ctx.send("Please upload the image you want to add as a sticker (`PNG`, `APNG`, or `Lottie JSON`, under `500 KB`, `320x320` pixels).")
-
         def check_image(message):
             return message.author == ctx.author and message.channel == ctx.channel and message.attachments
         try:
@@ -522,8 +559,8 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to add sticker", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Delete a sticker from the server")
-    async def stickerdel(self, ctx, name: str = None, id: int = None):
+    @sticker_group.command(name="delete", description="Delete a sticker from the server")
+    async def delete(self, ctx, name: str = None, id: int = None):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -542,8 +579,8 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to delete sticker", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Get information about a sticker")
-    async def stickerinfo(self, ctx, name: str = None, id: int = None):
+    @sticker_group.command(name="info", description="Get information about a sticker")
+    async def info(self, ctx, name: str = None, id: int = None):
         try:
             sticker = None
             if name:
@@ -563,8 +600,8 @@ class MiscCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Rename a sticker in the server")
-    async def stickerrename(self, ctx, id: int, new_name: str):
+    @sticker_group.command(name="rename", description="Rename a sticker in the server")
+    async def rename(self, ctx, id: int, new_name: str):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -579,20 +616,25 @@ class MiscCog(commands.Cog):
             await ctx.send(f"Failed to rename sticker!", ephemeral=True)
             print(e)
 
-    @commands.hybrid_command(description="Set your card nickname")
-    async def cardnickname(self, ctx, *, nickname: str):
+    @commands.hybrid_group(name="card", description="Card commands")
+    async def card_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            return
+
+    @card_group.command(name="nickname", description="Set your card nickname")
+    async def nickname(self, ctx, *, nickname: str):
         await self.create_user_card(ctx.author.id)
         await self.update_user_card(ctx.author.id, nickname=nickname)
         await ctx.send(f"Your card's nickname has been updated to **{nickname}**", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card bio")
-    async def cardbio(self, ctx, *, bio: str):
+    @card_group.command(name="bio", description="Set your card bio")
+    async def bio(self, ctx, *, bio: str):
         await self.create_user_card(ctx.author.id)
         await self.update_user_card(ctx.author.id, bio=bio)
         await ctx.send(f"Your card's bio has been updated to: \n> {bio}", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card age")
-    async def cardage(self, ctx, age: int):
+    @card_group.command(name="age", description="Set your card age")
+    async def age(self, ctx, age: int):
         if age < 13:
             await ctx.send(f"Hey pal, [**Discord TOS**](<https://discord.com/terms#2>) states you need to be **13 years or older** to use Discord, please log off and wait 'till you're older to use the application, thank you!", ephemeral=True)
             return
@@ -601,27 +643,27 @@ class MiscCog(commands.Cog):
             await self.update_user_card(ctx.author.id, age=age)
             await ctx.send(f"Your card's age has been updated to **{age}**!", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card pronouns")
-    async def cardpronouns(self, ctx, *, pronouns: str):
+    @card_group.command(name="pronouns", description="Set your card pronouns")
+    async def pronouns(self, ctx, *, pronouns: str):
         await self.create_user_card(ctx.author.id)
         await self.update_user_card(ctx.author.id, pronouns=pronouns)
         await ctx.send(f"You're cards pronouns have been updated to **{pronouns}**!", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card birthday")
-    async def cardbirthday(self, ctx, month: int, day: int, year: int):
+    @card_group.command(name="birthday", description="Set your card birthday")
+    async def birthday(self, ctx, month: int, day: int, year: int):
         await self.create_user_card(ctx.author.id)
         birthday = f"{month}/{day}/{year}"
         await self.update_user_card(ctx.author.id, birthday=birthday)
         await ctx.send(f"Your card's birthday has been updated to **{birthday}**!", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card ideology")
-    async def cardideology(self, ctx, *, ideology: str):
+    @card_group.command(name="ideology", description="Set your card ideology")
+    async def ideology(self, ctx, *, ideology: str):
         await self.create_user_card(ctx.author.id)
         await self.update_user_card(ctx.author.id, ideology=ideology)
         await ctx.send(f"Your card's ideology has been updated to **{ideology}**!", ephemeral=True)
 
-    @commands.hybrid_command(description="Set your card color")
-    async def cardcolor(self, ctx, choice: str):
+    @card_group.command(name="color", description="Set your card color")
+    async def color(self, ctx, choice: str):
         choice = choice.lower()
         if choice in color_mapping:
             color = color_mapping[choice]
@@ -635,16 +677,16 @@ class MiscCog(commands.Cog):
         await self.set_user_card_color(ctx.author.id, color)
         await ctx.send(f"Your card color has been updated to `{choice}`!", ephemeral=True)
 
-    @commands.hybrid_command(description="List available card color choices")
-    async def cardcolorchoices(self, ctx):
+    @card_group.command(name="colorchoices", description="List available card color choices")
+    async def colorchoices(self, ctx):
         e = discord.Embed(color=commie_color)
         e.set_author(name="Commie User Card Color Choices", icon_url=commie_logo)
         e.set_thumbnail(url=commie_logo)
         e.description = "# 🛍️ Available Color Choices 🛍️ \n> 🔴 Red \n> 🟠 Orange \n> 🟡 Yellow \n> 🟢 Green \n> 🔵 Blue \n> 🟣 Purple \n> 🌸 Pink \n> 🟤 Brown \n> ⚫️ Black \n> 🔘 Grey \n> ⚪️ White\n\n### 👾 Custom Colors 👾 \n> To set a custom color use a hex code (**Ex:** `#ff5733`)!"
         await ctx.send(embed=e, ephemeral=True)
 
-    @commands.hybrid_command(description="Show a user's card")
-    async def card(self, ctx, user: discord.Member = None):
+    @card_group.command(name="show", description="Show a user's card")
+    async def show(self, ctx, user: discord.Member = None):
         user = user or ctx.author
         card = await self.get_user_card(user.id)
         if not card:
