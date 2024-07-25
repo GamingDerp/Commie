@@ -43,7 +43,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
+    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`, `MenuHelp`, `MenuInfo`, `MenuCreate`, `MenuSend`, `MenuEdit`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -68,7 +68,7 @@ class Dropdown(discord.ui.Select):
             discord.SelectOption(label="General Commands",description="Help, Info, Test, Ping, Suggest +3 More", emoji="📌"),
             discord.SelectOption(label="Fun Commands", description="Coinflip, Ask, Reverse, Say, Lovetest +1 More", emoji="🎉"),
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
-            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +16 More", emoji="🧮"),
+            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +21 More", emoji="🧮"),
             discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +13 More", emoji="🔰"),
             discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +15 More", emoji="⚙️"),
         ]
@@ -171,7 +171,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [97]"
+                value=f"> **Commands:** [102]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
@@ -186,9 +186,9 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Links",
-                value=f"<a:CommiePet:1258041355012149328> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)"
+                value=f"<a:CommiePet:1258041355012149328> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=1632493759575&integration_type=0&scope=bot>)"
                       f"\n<:Discord:1258040249544736972> [Support Server](https://discord.gg/t9g3Wbt9Sj)"
-                      f"\n📮 [Vote for Commie](<https://discordbotlist.com/bots/commie>)"
+                      f"\n📮 [Vote for Commie](<https://top.gg/bot/1258968199899381771>)"
                       f"\n💰 [Tip Commie](<https://en.liberapay.com/CommieBot/>)"
                       f"\n<:GitHub:1123773190238392504> [Commie's GitHub](<https://github.com/GamingDerp/Commie/tree/main>)",
                 inline=False
@@ -207,35 +207,40 @@ class GeneralCog(commands.Cog):
 
     @commands.hybrid_command(description="Setup Commie")
     async def setup(self, ctx):
-        if not await self.has_mod_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        e = discord.Embed(color=commie_color)
-        e.set_author(name="Setting up Commie", icon_url=commie_logo)
-        e.set_thumbnail(url=commie_logo)
-        e.description = (
-            "**# 📌 How To Setup Commie 📌**\n"
-            "Toggle the commands to **enable** or **disable** them, then use the `set` commands to customize them!\n"
-            "### Toggle Commands\n"
-            "> ⚖️ `/togglelog`\n"
-            "> ⚖️ `/togglewelcome`\n"
-            "> ⚖️ `/toggleleave`\n"
-            "> ⚖️ `/togglestar`\n"
-            "> ⚖️ `/togglesuggest`\n"
-            "> ⚖️ `/toggleboost`\n"
-            "### Configuration Commands\n"
-            "> 🔔 **Set the bot prefix:** `/setprefix [prefix]` (Default is `!`)\n"
-            "> 🔰 **Set staff roles:** `/setstaff`\n"
-            "> 🗃 **Configure logging:** `/setlog`\n"
-            "> 👋 **Configure welcome messages:** `/setwelcome`\n"
-            "> 🚫 **Configure leave messages:** `/setleave`\n"
-            "> ⭐️ **Configure starboard:** `/setstar`\n"
-            "> 💡 **Configure suggestions:** `/setsuggest`\n"
-            "> <a:Boost:1258934863529246762> **Configure boost messages:** `/setboost`\n"
-            f"> ⚙️ **Show {ctx.guild.name}'s Configurations:** `/configs`\n"
-            "\n*If you need any help, feel free to join our* [***Support Server***](https://discord.gg/t9g3Wbt9Sj)*!*."
-            )
-        await ctx.send(embed=e, ephemeral=True)
+        try:
+            if not ctx.author.guild_permissions.administrator and not await self.has_mod_role(ctx.author, ctx.guild.id):
+                await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+                return
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="Setting up Commie", icon_url=commie_logo)
+            e.set_thumbnail(url=commie_logo)
+            e.description = (
+                "**# 📌 How To Setup Commie 📌**\n"
+                "Toggle the commands to **enable** or **disable** them, then use the `set` commands to customize them!\n"
+                "### Toggle Commands\n"
+                "> ⚖️ `/togglelog`\n"
+                "> ⚖️ `/togglewelcome`\n"
+                "> ⚖️ `/toggleleave`\n"
+                "> ⚖️ `/togglestar`\n"
+                "> ⚖️ `/togglesuggest`\n"
+                "> ⚖️ `/toggleboost`\n"
+                "> ⚖️ `/toggleautorole`\n"
+                "### Configuration Commands\n"
+                "> 🔔 **Set the bot prefix:** `/setprefix [prefix]` (Default is `!`)\n"
+                "> 🔰 **Set staff roles:** `/setstaff`\n"
+                "> 🗃 **Configure logging:** `/setlog`\n"
+                "> 👋 **Configure welcome messages:** `/setwelcome`\n"
+                "> 🚫 **Configure leave messages:** `/setleave`\n"
+                "> ⭐️ **Configure starboard:** `/setstar`\n"
+                "> 💡 **Configure suggestions:** `/setsuggest`\n"
+                "> <a:Boost:1258934863529246762> **Configure boost messages:** `/setboost`\n"
+                "> 🎭 **Configure auto roles:** `/setautoroles`\n"
+                f"> ⚙️ **Show {ctx.guild.name}'s Configurations:** `/configs`\n"
+                "\n*If you need any help, feel free to join our* [***Support Server***](https://discord.gg/t9g3Wbt9Sj)*!*."
+                )
+            await ctx.send(embed=e, ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Donate to Commie")
     async def donate(self, ctx):
@@ -254,7 +259,8 @@ class GeneralCog(commands.Cog):
         e.set_thumbnail(url=commie_logo)
         e.description = "Thank you for wanting to vote for **Commie**! It's very appreciated! \n\n*Voting sites are linked below!*"
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, emoji="<:DiscordBotList:1260504121249628201>", label="Vote for Commie!", url="https://discordbotlist.com/bots/commie"))
+        view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, emoji="<:TopGG:1260504119811112961>", label="Top.GG", url="https://top.gg/bot/1258968199899381771"))
+        view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, emoji="<:DiscordBotList:1260504121249628201>", label="DiscordBotList", url="https://discordbotlist.com/bots/commie"))
         await ctx.send(embed=e, view=view, ephemeral=True)
 
     @commands.hybrid_command(description="Test if the bot is up")
