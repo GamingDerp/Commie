@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `97`
+**Command Count:** `102`
 
 ## ⚖️ Roles
 
@@ -90,6 +90,11 @@ stickeradd | Adds a sticker to the server | `stickeradd` | Admin
 stickerdel | Deletes a sticker from the server | `stickerdel <name> <id>` | Admin
 stickerinfo | Shows information about a sticker | `stickerinfo <name> <id>` | Member
 stickerrename | Renames a sticker | `stickerrename <id> <new_name>` | Admin
+menuhelp | Sends the Menu Help menu | `menuhelp` | Admin
+menuinfo | Sends information about a self role menu | `menuinfo <identifier>` | Admin
+menucreate | Creates a self role menu | `menucreate` | Admin
+menusend | Sends a self role menu | `menusend <menu_id>` | Admin
+menuedit | Edits a self role menu | `menu edit <menu_id>` | Admin
 
 ## 🔰 Staff
 Command | Description | Usage | Role Required
