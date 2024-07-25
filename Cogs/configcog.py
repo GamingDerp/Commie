@@ -91,8 +91,278 @@ class ConfigCog(commands.Cog):
                              [guild_id, *values])
             await db.commit()
 
-    @commands.hybrid_command(description="Set the bot's prefix for the server")
-    async def setprefix(self, ctx, new_prefix: str):
+    @commands.hybrid_group(name="toggle", description="Toggle features for the server")
+    async def toggle_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Use `/toggle <feature>` to toggle specific features.")
+
+    @toggle_group.command(name="log", description="Toggle the logging feature")
+    async def log(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            logging_enabled = config.get('toggle_logging', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="📋 Logging", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the logging feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not logging_enabled:
+                    await interaction.response.send_message("Event logging is already disabled!")
+                    await initial_message.delete()
+                    return
+                config['toggle_logging'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** event logging has been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_logging'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** event logging has been enabled, to set it up do `set log`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @toggle_group.command(name="suggest", description="Toggle the suggestions feature")
+    async def suggest(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            suggestions_enabled = config.get('toggle_suggest', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="💡 Suggestions", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the suggestions feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not suggestions_enabled:
+                    await interaction.response.send_message("Suggestions are already disabled!")
+                    await initial_message.delete()
+                    return
+                config['toggle_suggest'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** suggestions have been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_suggest'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** suggestions have been enabled, to set it up do `set suggest`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @toggle_group.command(name="star", description="Toggle the starboard feature")
+    async def star(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            starboard_enabled = config.get('toggle_starboard', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="⭐️ Starboard", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the starboard feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not starboard_enabled:
+                    await interaction.response.send_message("The starboard is already disabled!")
+                    await initial_message.delete()
+                    return
+                config['toggle_starboard'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** starboard has been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_starboard'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** starboard has been enabled, to set it up do `set star`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @toggle_group.command(name="welcome", description="Toggle the welcome messages feature")
+    async def welcome(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            welcome_enabled = config.get('toggle_welcome', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="👋 Welcome Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the welcome messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not welcome_enabled:
+                    await interaction.response.send_message("Welcome messages are already disabled!")
+                    await initial_message.delete()
+                    return
+                config['toggle_welcome'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** welcome messages have been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_welcome'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** welcome messages have been enabled, to set it up do `set welcome`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+    
+    @toggle_group.command(name="leave", description="Toggle the leave messages feature")
+    async def leave(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            leave_enabled = config.get('toggle_leave', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="🚫 Leave Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = (f"Toggle the leave messages feature for **{ctx.guild.name}**. "
+                             "Click the **'Enable'** button to enable or the **'Disable'** button to disable it.")
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not leave_enabled:
+                    await interaction.response.send_message("Leave messages are already disabled!", ephemeral=True)
+                    await initial_message.delete()
+                    return
+                config['toggle_leave'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** leave messages have been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_leave'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** leave messages have been enabled, to set it up do `set leave`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @toggle_group.command(name="boost", description="Toggle the boost messages feature")
+    async def boost(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            boost_enabled = config.get('toggle_boost', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="Boost Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the boost messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not boost_enabled:
+                    await interaction.response.send_message("Boost messages are already disabled!", ephemeral=True)
+                    await initial_message.delete()
+                    return
+                config['toggle_boost'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** boost messages have been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_boost'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** boost messages have been enabled, to set it up do `set boost`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @toggle_group.command(name="autorole", description="Toggle the autorole feature")
+    async def autorole(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id) or {}
+            autorole_enabled = config.get('toggle_autorole', False)
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="🤖 Autorole", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.description = f"Toggle the autorole feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
+            view = discord.ui.View()
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
+            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
+            initial_message = await ctx.send(embed=e, view=view)
+            def check(interaction):
+                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
+            interaction = await self.bot.wait_for("interaction", check=check)
+            if interaction.data['custom_id'] == "disable":
+                if not autorole_enabled:
+                    await interaction.response.send_message("Autorole is already disabled!", ephemeral=True)
+                    await initial_message.delete()
+                    return
+                config['toggle_autorole'] = False
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been disabled.")
+                await initial_message.delete()
+                return
+            if interaction.data['custom_id'] == "enable":
+                config['toggle_autorole'] = True
+                await self.save_config(ctx.guild.id, config)
+                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been enabled, to set it up do `set autorole`!")
+                await initial_message.delete()
+        except Exception as e:
+            print(e)
+
+    @commands.hybrid_group(name="set", description="Set features for the server")
+    async def set_group(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Use `/set <feature>` to set specific features.")
+
+    @set_group.command(name="prefix", description="Set the bot's prefix for the server")
+    async def prefix(self, ctx, new_prefix: str):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -104,8 +374,8 @@ class ConfigCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Set the staff commands for your server")
-    async def setstaff(self, ctx):
+    @set_group.command(name="staff", description="Set the staff commands for your server")
+    async def staff(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You do not have the required permissions to use this command.", ephemeral=True, delete_after=10)
             return
@@ -145,104 +415,14 @@ class ConfigCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    async def send_role_prompt(self, ctx, role_type, admin_roles, moderator_roles, helper_roles):
-        try:
-            e = discord.Embed(color=commie_color)
-            e.set_author(name=f"{ctx.guild.name} Staff Roles", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
-            return await ctx.send(f"Mention (**@**) your **{role_type}** role(s)! Say '**done**' when you're finished mentioning the **Admin** Roles! To skip this Staff Role, say '**skip**'!", embed=e)
-        except Exception as e:
-            print(e)
-
-    async def collect_roles(self, ctx, role_type, admin_roles, moderator_roles, helper_roles, message):
-        try:
-            def check(msg):
-                return msg.author == ctx.author and msg.channel == ctx.channel
-            while True:
-                msg = await self.bot.wait_for('message', check=check)
-                if msg.content.lower() == "done":
-                    break
-                if msg.content.lower() == "skip":
-                    break
-                role_mentions = [role for role in msg.role_mentions]
-                if role_mentions:
-                    if role_type == "Admin":
-                        admin_roles.extend(role_mentions)
-                    elif role_type == "Moderator":
-                        moderator_roles.extend(role_mentions)
-                    elif role_type == "Helper":
-                        helper_roles.extend(role_mentions)
-                    await message.edit(content=f"Mention (**@**) your **{role_type}** role(s)! Say '**done**' when you're finished! To skip to the next Staff Role, say '**skip**'!", embed=self.format_embed(ctx, admin_roles, moderator_roles, helper_roles))
-                else:
-                    await ctx.send("Please mention a valid role.", delete_after=5)
-        except Exception as e:
-            print(e)
-
-    def format_roles_embed(self, admin_roles, moderator_roles, helper_roles):
-        try:
-            admin_mentions = '\n> - '.join([role.mention for role in admin_roles]) or "None"
-            moderator_mentions = '\n> - '.join([role.mention for role in moderator_roles]) or "None"
-            helper_mentions = '\n> - '.join([role.mention for role in helper_roles]) or "None"
-            return f"### 🥇 Admin Role(s) \n> - {admin_mentions} \n### 🥈 Moderator Role(s) \n> - {moderator_mentions} \n### 🥉 Helper Role(s) \n> - {helper_mentions}"
-        except Exception as e:
-            print(e)
-
-    def format_embed(self, ctx, admin_roles, moderator_roles, helper_roles):
-        try:
-            e = discord.Embed(color=commie_color)
-            e.set_author(name=f"{ctx.guild.name} Staff Roles", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
-            return e
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Toggle the logging feature")
-    async def togglelog(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            logging_enabled = config.get('toggle_logging', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="📋 Logging", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the logging feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not logging_enabled:
-                    await interaction.response.send_message("Event logging is already disabled!")
-                    await initial_message.delete()
-                    return
-                config['toggle_logging'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** event logging has been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_logging'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** event logging has been enabled, to set it up do `setlog`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set the servers logging channel")
-    async def setlog(self, ctx):
+    @set_group.command(name="log", description="Set the servers logging channel")
+    async def log(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
         config = await self.get_config(ctx.guild.id)
         if not config or not config.get('toggle_logging'):
-            await ctx.send(f"**{ctx.guild.name}'s** event logging is **disabled**! To enable it do `togglelog`!")
+            await ctx.send(f"**{ctx.guild.name}'s** event logging is **disabled**! To enable it do `toggle log`!")
             return
         await ctx.send("Mention the channel to set as your logging channel!")
         try:
@@ -256,51 +436,14 @@ class ConfigCog(commands.Cog):
         except asyncio.TimeoutError:
             await ctx.send("Timed out. Logging setup cancelled.", delete_after=10)
 
-    @commands.hybrid_command(description="Toggle the suggestions feature")
-    async def togglesuggest(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            suggestions_enabled = config.get('toggle_suggest', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="💡 Suggestions", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the suggestions feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not suggestions_enabled:
-                    await interaction.response.send_message("Suggestions are already disabled!")
-                    await initial_message.delete()
-                    return
-                config['toggle_suggest'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** suggestions have been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_suggest'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** suggestions have been enabled, to set it up do `setsuggest`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set the suggestion channel for the server")
-    async def setsuggest(self, ctx):
+    @set_group.command(name="suggest", description="Set the suggestion channel for the server")
+    async def suggest(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
         config = await self.get_config(ctx.guild.id)
         if not config or not config.get('toggle_suggest'):
-            await ctx.send(f"**{ctx.guild.name}'s** suggestions are **disabled**! To enable it do `togglesuggest`!")
+            await ctx.send(f"**{ctx.guild.name}'s** suggestions are **disabled**! To enable it do `toggle suggest`!")
             return
         await ctx.send("Mention the channel to set as your suggestion channel!")
         def check_channel(message):
@@ -316,51 +459,14 @@ class ConfigCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Toggle the starboard feature")
-    async def togglestar(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            starboard_enabled = config.get('toggle_starboard', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="⭐️ Starboard", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the starboard feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not starboard_enabled:
-                    await interaction.response.send_message("The starboard is already disabled!")
-                    await initial_message.delete()
-                    return
-                config['toggle_starboard'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** starboard has been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_starboard'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** starboard has been enabled, to set it up do `setstar`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set the star count and starboard channel")
-    async def setstar(self, ctx):
+    @set_group.command(name="star", description="Set the star count and starboard channel")
+    async def star(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
         config = await self.get_config(ctx.guild.id)
         if not config or not config.get('toggle_starboard'):
-            await ctx.send(f"**{ctx.guild.name}'s** starboard is **disabled**! To enable it do `togglestar`!")
+            await ctx.send(f"**{ctx.guild.name}'s** starboard is **disabled**! To enable it do `toggle star`!")
             return
         await ctx.send("Mention the channel to set as your starboard!")
         try:
@@ -385,45 +491,8 @@ class ConfigCog(commands.Cog):
         except asyncio.TimeoutError:
             await ctx.send("Timed out. Starboard setup cancelled.", delete_after=10)
 
-    @commands.hybrid_command(description="Toggle the welcome messages feature")
-    async def togglewelcome(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            welcome_enabled = config.get('toggle_welcome', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="👋 Welcome Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the welcome messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not welcome_enabled:
-                    await interaction.response.send_message("Welcome messages are already disabled!")
-                    await initial_message.delete()
-                    return
-                config['toggle_welcome'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** welcome messages have been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_welcome'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** welcome messages have been enabled, to set it up do `setwelcome`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-    
-    @commands.hybrid_command(description="Set the welcome message and welcome channel")
-    async def setwelcome(self, ctx):
+    @set_group.command(name="welcome", description="Set the welcome message and welcome channel")
+    async def welcome(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -469,69 +538,12 @@ class ConfigCog(commands.Cog):
             config['welcome_channel'] = channel.id
             config['welcome_message'] = welcome_message
             await self.save_config(ctx.guild.id, config)
-            await ctx.send(f"**{ctx.guild.name}'s** welcoming channel has been set to {channel.mention}! To see your welcome message do `testwelcome`!")
+            await ctx.send(f"**{ctx.guild.name}'s** welcoming channel has been set to {channel.mention}! To see your welcome message do `test welcome`!")
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Test the server's welcome message")
-    async def testwelcome(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id)
-            welcome_status = config.get('toggle_welcome')
-            welcome_channel_id = config.get('welcome_channel')
-            welcome_message = config.get('welcome_message')
-            if not welcome_status or not welcome_message:
-                await ctx.send(f"**{ctx.guild.name}** doesn't have a welcome message set! Toggle the welcome messages with `togglewelcome` and set it with `setwelcome`!")
-                return
-            welcome_channel = self.bot.get_channel(welcome_channel_id)
-            test_message = welcome_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
-            await ctx.send(f"{test_message}")
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Toggle the leave messages feature")
-    async def toggleleave(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            leave_enabled = config.get('toggle_leave', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="🚫 Leave Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = (f"Toggle the leave messages feature for **{ctx.guild.name}**. "
-                             "Click the **'Enable'** button to enable or the **'Disable'** button to disable it.")
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not leave_enabled:
-                    await interaction.response.send_message("Leave messages are already disabled!", ephemeral=True)
-                    await initial_message.delete()
-                    return
-                config['toggle_leave'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** leave messages have been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_leave'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** leave messages have been enabled, to set it up do `setleave`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set the leave message and leave channel")
-    async def setleave(self, ctx):
+    @set_group.command(name="leave", description="Set the leave message and leave channel")
+    async def leave(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -577,70 +589,12 @@ class ConfigCog(commands.Cog):
             config['leave_channel'] = channel.id
             config['leave_message'] = leave_message
             await self.save_config(ctx.guild.id, config)
-            await ctx.send(f"**{ctx.guild.name}'s** leave channel has been set to {channel.mention}! To see your leave message do `testleave`!")
+            await ctx.send(f"**{ctx.guild.name}'s** leave channel has been set to {channel.mention}! To see your leave message do `test leave`!")
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Test the server's leave message")
-    async def testleave(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id)
-            leave_status = config.get('toggle_leave')
-            leave_channel_id = config.get('leave_channel')
-            leave_message = config.get('leave_message')
-            if not leave_status or not leave_message:
-                await ctx.send(f"**{ctx.guild.name}** doesn't have a leave message set! Toggle the leave messages with `toggleleave` and set it with `setleave`!")
-                return
-            leave_channel = self.bot.get_channel(leave_channel_id)
-            test_message = leave_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
-            await ctx.send(f"{test_message}")
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Toggle the boost messages feature")
-    async def toggleboost(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            boost_enabled = config.get('toggle_boost', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="Boost Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the boost messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not boost_enabled:
-                    await interaction.response.send_message("Boost messages are already disabled!", ephemeral=True)
-                    await initial_message.delete()
-                    return
-                config['toggle_boost'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** boost messages have been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_boost'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** boost messages have been enabled, to set it up do `setboost`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set the boost message and channel")
-    async def setboost(self, ctx):
+    @set_group.command(name="boost", description="Set the boost message and channel")
+    async def boost(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -685,76 +639,14 @@ class ConfigCog(commands.Cog):
             for i, perk in enumerate(perks, 1):
                 config[f'boost_perk_{i}'] = perk
             await self.save_config(ctx.guild.id, config)
-            await ctx.send(f"**{ctx.guild.name}'s** boost message channel has been set to {channel.mention}! To see your boost message do `testboost`!")
+            await ctx.send(f"**{ctx.guild.name}'s** boost message channel has been set to {channel.mention}! To see your boost message do `test boost`!")
         except asyncio.TimeoutError:
             await ctx.send("Timed out. Boost setup cancelled.", delete_after=10)
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Test the server's boost message")
-    async def testboost(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        config = await self.get_config(ctx.guild.id)
-        boost_enabled = config.get('toggle_boost')
-        boost_channel_id = config.get('boost_channel')
-        description = config.get('description')
-        perks = [config.get(f'boost_perk_{i}') for i in range(1, 11)]
-        if not boost_enabled or not boost_channel_id:
-            await ctx.send(f"**{ctx.guild.name}** doesn't have a boost message set! Toggle boost messages with `toggleboost` and set it with `setboost`!")
-            return
-        channel = self.bot.get_channel(boost_channel_id)
-        e = discord.Embed(color=boost_color)
-        e.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
-        e.set_thumbnail(url=ctx.author.avatar.url)
-        e.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
-        if any(perks):
-            e.description += "\n\n***You'll now receive these perks:***\n"
-            for perk in perks:
-                if perk:
-                    e.description += f"> {perk}\n"
-        await ctx.send(embed=e)
-
-    @commands.hybrid_command(description="Toggle the autorole feature")
-    async def toggleautorole(self, ctx):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        try:
-            config = await self.get_config(ctx.guild.id) or {}
-            autorole_enabled = config.get('toggle_autorole', False)
-            e = discord.Embed(color=commie_color)
-            e.set_author(name="🤖 Autorole", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.description = f"Toggle the autorole feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
-            view = discord.ui.View()
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="enable"))
-            view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="disable"))
-            initial_message = await ctx.send(embed=e, view=view)
-            def check(interaction):
-                return interaction.type == discord.InteractionType.component and interaction.user == ctx.author and interaction.data['custom_id'] in ["enable", "disable"]
-            interaction = await self.bot.wait_for("interaction", check=check)
-            if interaction.data['custom_id'] == "disable":
-                if not autorole_enabled:
-                    await interaction.response.send_message("Autorole is already disabled!", ephemeral=True)
-                    await initial_message.delete()
-                    return
-                config['toggle_autorole'] = False
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been disabled.")
-                await initial_message.delete()
-                return
-            if interaction.data['custom_id'] == "enable":
-                config['toggle_autorole'] = True
-                await self.save_config(ctx.guild.id, config)
-                await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been enabled, to set it up do `setautorole`!")
-                await initial_message.delete()
-        except Exception as e:
-            print(e)
-
-    @commands.hybrid_command(description="Set autoroles for the server")
-    async def setautorole(self, ctx):
+    @set_group.command(name="autorole", description="Set autoroles for the server")
+    async def autorole(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
