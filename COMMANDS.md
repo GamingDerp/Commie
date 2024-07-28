@@ -115,7 +115,7 @@ hightlightremove | Removes a word from a moderator's highlight list | `highlight
 highlightclear | Clears a moderator's word highlight list | `highlightclear` | Helper
 highlightblock | Blocks a user or channel on a moderator's highlight list | `highlightblock @user` / `highlightblock #channel` | Helper
 highllightunblock | Unblocks a user or channel from a moderator's highlight list | `highlightunblock @user` / `highlightunblock #channel` | Helper
-defaulthighlights | Adds a default list of slurs to a moderator's highlight list | `defaulthighlights` | Helper
+highlightdefaults | Adds a default list of slurs to a moderator's highlight list | `highlightdefaults` | Helper
 highlightignore | Adds a word to a moderator's ignore list | `highlightignore <word>` | Helper
 highlightunignore | Removes a word from a moderator's ignore list | `highlightunignore <word>` | Helper
 
