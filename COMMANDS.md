@@ -25,7 +25,6 @@ about | Shows more information about **Commie** | `about` | Member
 setup | Shows a user how to setup **Commie** | `setup` | Moderator
 donate | Sends **Commie's** donation link | `donate` | Member
 vote | Sends **Commie's** voting links | `vote` | Member
-test | Tests if the bot is up | `test` | Member
 ping | Shows a users ping | `ping` | Member
 suggest | Lets users make a suggestion for the server | `suggest <suggestion>` | Member
 poll | Creates a poll | `poll <question> <option1> <option2> <option3> <option4> <option5>` | Moderator
@@ -141,4 +140,4 @@ setboost | Sets the boost message for a server | `setboost` | Admin
 setautorole | Sets the auto roles for a server | `setautorole` | Admin
 testwelcome | Sends the welcome message for a server | `testwelcome` | Admin
 testleave | Sends the leave message for a server | `testleave` | Admin
-testboost | Sends the boost embed for a server | `testboost` Admin
+testboost | Sends the boost embed for a server | `testboost` | Admin
