@@ -2,7 +2,6 @@ import os
 import discord
 from discord.ext import commands
 from datetime import datetime, timedelta
-import time
 import aiosqlite
 import random
 import asyncio
@@ -19,7 +18,7 @@ ge.set_author(name="Commie Commands", icon_url=commie_logo)
 ge.set_thumbnail(url=commie_logo)
 ge.add_field(
     name="📌 __General Commands__",
-    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Test`, `Ping`, `Suggest`, `Poll`",
+    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Ping`, `Suggest`, `Poll`",
 )
 
 fe = discord.Embed(color=commie_color)
@@ -43,7 +42,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`, `MenuHelp`, `MenuInfo`, `MenuCreate`, `MenuSend`, `MenuEdit`",
+    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -51,7 +50,7 @@ se.set_author(name="Commie Commands", icon_url=commie_logo)
 se.set_thumbnail(url=commie_logo)
 se.add_field(
     name="🔰 __Staff Commands__",
-    value=f"> `Purge`, `Ban`, `Unban`, `Kick`, `Gulag`, `Warn`, `WarnList`, `DelWarn`, `ClearWarns`, `Highlightadd`, `Highlightremove`, `Highlightclear`, `Highlightblock`, `Highlightunblock`, `Defaulthighlights`, `Highlightignore`, `Highlightunignore`, `Highlighthelp`",
+    value=f"> `Purge`, `Ban`, `Unban`, `Kick`, `Gulag`, `Warn`, `WarnList`, `DelWarn`, `ClearWarns`, `HighlightAdd`, `HighlightRemove`, `HighlightClear`, `HighlightBlock`, `HighlightUnblock`, `HighlightDefaults`, `HighlightIgnore`, `HighlightUnignore`, `HighlightHelp`",
 )
 
 ce = discord.Embed(color=commie_color)
@@ -65,34 +64,40 @@ ce.add_field(
 class Dropdown(discord.ui.Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="General Commands",description="Help, Info, Test, Ping, Suggest +3 More", emoji="📌"),
+            discord.SelectOption(label="General Commands", description="Help, Info, Setup, About, Vote +4 More", emoji="📌"),
             discord.SelectOption(label="Fun Commands", description="Coinflip, Ask, Reverse, Say, Lovetest +1 More", emoji="🎉"),
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
-            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +21 More", emoji="🧮"),
+            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +16 More", emoji="🧮"),
             discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +13 More", emoji="🔰"),
             discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +15 More", emoji="⚙️"),
         ]
         super().__init__(min_values=1, max_values=1, options=options)
 
-    async def callback(self,interaction:discord.Interaction):
-        if self.values[0] == "General Commands":
-            await interaction.response.edit_message(embed=ge)
-        if self.values[0] == "Fun Commands":
-            await interaction.response.edit_message(embed=fe)
-        if self.values[0] == "Action Commands":
-            await interaction.response.edit_message(embed=ae)
-        if self.values[0] == "Misc Commands":
-            await interaction.response.edit_message(embed=me)
-        if self.values[0] == "Staff Commands":
-            await interaction.response.edit_message(embed=se)
-        if self.values[0] == "Config Commands":
-            await interaction.response.edit_message(embed=ce)   
-    
+    async def callback(self, interaction: discord.Interaction):
+        selected_value = self.values[0]
+        try:
+            if selected_value == "General Commands":
+                await interaction.response.edit_message(embed=ge)
+            elif selected_value == "Fun Commands":
+                await interaction.response.edit_message(embed=fe)
+            elif selected_value == "Action Commands":
+                await interaction.response.edit_message(embed=ae)
+            elif selected_value == "Misc Commands":
+                await interaction.response.edit_message(embed=me)
+            elif selected_value == "Staff Commands":
+                await interaction.response.edit_message(embed=se)
+            elif selected_value == "Config Commands":
+                await interaction.response.edit_message(embed=ce)
+        except Exception as e:
+            print(f"Error handling select: {e}")
+            print(f"Error type: {type(e)}")
+            print(f"Error args: {e.args}")
+
 class DropdownView(discord.ui.View):
     def __init__(self):
         super().__init__()
-        self.add_item(Dropdown())      
-        
+        self.add_item(Dropdown())
+
 class GeneralCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -109,7 +114,7 @@ class GeneralCog(commands.Cog):
                         return None
         except Exception as e:
             print(e)
-    
+
     async def has_mod_role(self, user, guild_id):
         try:
             config = await self.get_config(guild_id)
@@ -122,7 +127,7 @@ class GeneralCog(commands.Cog):
         except Exception as e:
             print(e)
             return False
-    
+
     @commands.hybrid_command(description="Sends Commie's help menu")
     async def help(self, ctx):
         e = discord.Embed(color=commie_color)
@@ -139,7 +144,7 @@ class GeneralCog(commands.Cog):
         )
         view = DropdownView()
         await ctx.send(embed=e, view=view)
-        
+
     @commands.hybrid_command(description="Sends information about the bot")
     async def info(self, ctx):
         try:
@@ -171,7 +176,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [102]"
+                value=f"> **Commands:** [101]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
@@ -186,7 +191,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Links",
-                value=f"<a:CommiePet:1258041355012149328> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=1632493759575&integration_type=0&scope=bot>)"
+                value=f"<a:CommiePet:1258041355012149328> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)"
                       f"\n<:Discord:1258040249544736972> [Support Server](https://discord.gg/t9g3Wbt9Sj)"
                       f"\n📮 [Vote for Commie](<https://top.gg/bot/1258968199899381771>)"
                       f"\n💰 [Tip Commie](<https://en.liberapay.com/CommieBot/>)"
@@ -202,7 +207,7 @@ class GeneralCog(commands.Cog):
         e = discord.Embed(color=commie_color)
         e.set_author(name="About Commie", icon_url=commie_logo)
         e.set_thumbnail(url=commie_logo)
-        e.description = "### ❓ What does Commie do? ❓ \n> **Commie** is a multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy! \n### 💎 How can I support Commie? 💎 \n> Since Commie has no 'premium' features, you can [**donate**](<https://en.liberapay.com/CommieBot/>), boost the [**Commie Support Server**](<https://discord.gg/t9g3Wbt9Sj>), or [**vote**](<https://discordbotlist.com/bots/commie>) for **Commie** on the linked websites (checkout the `vote` command!) You can recommend **Commie** to other users as well! *Thank you for the support!* <a:CommiePet:1258041355012149328> \n### ⚙️ What does Commie run on? ⚙️ \n> <:Python:1260446899014602822> [Python](<https://www.python.org/downloads/release/python-3124/>) 3.12.4 \n> <:DiscordPY:1260446897894719518> [Discord.py](<https://github.com/Rapptz/discord.py>) 2.4.0"
+        e.description = "### ❓ What does Commie do? ❓ \n> **Commie** is a multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy! \n### 💎 How can I support Commie? 💎 \n> Since **Commie** has no 'premium' features, you can [**donate**](<https://en.liberapay.com/CommieBot/>), boost the [**Commie Support Server**](<https://discord.gg/t9g3Wbt9Sj>), or [**vote**](<https://discordbotlist.com/bots/commie>) for **Commie** on the linked websites (checkout the `vote` command!) You can recommend **Commie** to other users as well! *Thank you for the support!* <a:CommiePet:1258041355012149328> \n### ⚙️ What does Commie run on? ⚙️ \n> <:Python:1260446899014602822> [Python](<https://www.python.org/downloads/release/python-3124/>) 3.12.4 \n> <:DiscordPY:1260446897894719518> [Discord.py](<https://github.com/Rapptz/discord.py>) 2.4.0"
         await ctx.send(embed=e, ephemeral=True)
 
     @commands.hybrid_command(description="Setup Commie")
@@ -263,10 +268,6 @@ class GeneralCog(commands.Cog):
         view.add_item(discord.ui.Button(style=discord.ButtonStyle.link, emoji="<:DiscordBotList:1260504121249628201>", label="DiscordBotList", url="https://discordbotlist.com/bots/commie"))
         await ctx.send(embed=e, view=view, ephemeral=True)
 
-    @commands.hybrid_command(description="Test if the bot is up")
-    async def test(self, ctx):
-        await ctx.send("I'm up! <a:CommiePet:1258041355012149328>")
-
     @commands.hybrid_command(description="Sends Commie's ping")
     async def ping(self, ctx):
         e = discord.Embed(color=commie_color)
@@ -282,7 +283,7 @@ class GeneralCog(commands.Cog):
         try:
             config = await self.get_config(ctx.guild.id)
             if not config:
-                await ctx.send("Suggestions are disabled or no suggestion channel is set for **{ctx.guild.name}**!")
+                await ctx.send(f"Suggestions are disabled or no suggestion channel is set for **{ctx.guild.name}**!")
                 return
             suggestion_channel_id = config.get("suggestion_channel")
             if suggestion_channel_id:
@@ -303,21 +304,21 @@ class GeneralCog(commands.Cog):
                 await ctx.send(f"Suggestions are disabled or no suggestion channel is set for **{ctx.guild.name}**!")
         except Exception as e:
             print(e)
-    
+
     @commands.hybrid_command(description="Create a poll!")
-    async def poll(self, ctx, question:str, option1:str=None, option2:str=None, option3:str=None, option4:str=None, option5:str=None):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+    async def poll(self, ctx, question: str, option1: str = None, option2: str = None, option3: str = None, option4: str = None, option5: str = None):
+        if not ctx.author.guild_permissions.administrator and not await self.has_mod_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
         options = [option1, option2, option3, option4, option5]
         options = [option for option in options if option is not None]
-        emoji_list = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"]      
+        emoji_list = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"]
         if not options:
             await ctx.send("Please provide at least two options for the poll.")
             return
         if len(options) > 5:
             await ctx.send("You can only have up to 5 options in the poll.")
-            return       
+            return
         e = discord.Embed(color=commie_color)
         e.title = f"📊 **{question}**"
         description_text = ""
