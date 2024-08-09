@@ -21,7 +21,8 @@ color_mapping = {
     "white": 0xffffff
 }
 
-emoji_pattern = re.compile(r"^<a?:\w+:\d+>$|^[\u263a-\U0001f645]$")
+custom_emoji_pattern = re.compile(r"^<a?:\w+:\d+>$")
+default_emoji_pattern = re.compile(r"[\U0001F300-\U0001FAFF]|[\u2600-\u27BF]")
 
 class RoleCog(commands.Cog):
     def __init__(self, bot):
@@ -289,17 +290,18 @@ class RoleCog(commands.Cog):
                     continue
                 emoji, role_mention = parts
                 role = msg.role_mentions[0]
-                if not emoji_pattern.match(emoji):
-                    await ctx.send("Invalid format. Please use the `:emoji: @role` format and ensure the emoji is valid.", ephemeral=True, delete_after=10)
-                    await msg.delete()
-                    continue
-                roles[str(role.id)] = emoji
-                if embed.fields:
-                    field_value = embed.fields[0].value + f"\n> {emoji} {role.mention}"
-                    embed.set_field_at(0, name=f"\u200b", value=field_value, inline=False)
+                custom_emoji_match = custom_emoji_pattern.match(emoji)
+                default_emoji_match = default_emoji_pattern.match(emoji)
+                if custom_emoji_match or default_emoji_match:
+                    roles[str(role.id)] = emoji
+                    if embed.fields:
+                        field_value = embed.fields[0].value + f"\n> {emoji} {role.mention}"
+                        embed.set_field_at(0, name=f"\u200b", value=field_value, inline=False)
+                    else:
+                        embed.add_field(name=f"\u200b", value=f"> {emoji} {role.mention}", inline=False)
+                    await message.edit(embed=embed)
                 else:
-                    embed.add_field(name=f"\u200b", value=f"> {emoji} {role.mention}", inline=False)
-                await message.edit(embed=embed)
+                    await ctx.send("Invalid format. Please use the `:emoji: @role` format and ensure the emoji is valid.", ephemeral=True, delete_after=10)
                 await msg.delete()
             await prompt_msg.delete()
             prompt_msg = await ctx.send("Should the menu use **reactions**, **buttons** or a **dropdown**?")
