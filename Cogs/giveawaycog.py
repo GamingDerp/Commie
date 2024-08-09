@@ -17,17 +17,25 @@ class GiveawayCog(commands.Cog):
     def has_joined(self, user, giveaway_id):
         return user.id in self.participants.get(giveaway_id, [])
 
-    async def has_moderator_role(self, user, guild_id):
-        async with aiosqlite.connect("dbs/staff.db") as db:
-            async with db.execute("SELECT moderator_roles, admin_roles FROM staffroles WHERE server_id = ?", (guild_id,)) as cursor:
+    async def has_role(self, user, guild_id, role_type):
+        async with aiosqlite.connect("dbs/configs.db") as db:
+            async with db.execute(f"SELECT admin, moderator, helper FROM server_configs WHERE server_id = ?", (guild_id,)) as cursor:
                 row = await cursor.fetchone()
                 if row:
-                    moderator_roles = row[0].split(',')
-                    admin_roles = row[1].split(',')
-                    user_roles = [role.id for role in user.roles]
-                    if any(int(role) in user_roles for role in moderator_roles + admin_roles):
-                        return True
+                    roles = {
+                        "admin": row[0].split(',') if row[0] else [],
+                        "moderator": row[1].split(',') if row[1] else [],
+                        "helper": row[2].split(',') if row[2] else []
+                    }
+                    role_hierarchy = ["helper", "moderator", "admin"]
+                    user_roles = [str(role.id) for role in user.roles]
+                    for higher_role in role_hierarchy[role_hierarchy.index(role_type):]:
+                        if any(role in user_roles for role in roles[higher_role]):
+                            return True
         return False
+
+    async def has_moderator_role(self, user, guild_id):
+        return await self.has_role(user, guild_id, "moderator")
 
     @commands.hybrid_command(description="Start a giveaway | s, m, h, d")
     async def giveaway(self, ctx, time, *, prize: str):
