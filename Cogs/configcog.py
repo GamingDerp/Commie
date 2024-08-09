@@ -81,7 +81,11 @@ class ConfigCog(commands.Cog):
                     result = await cursor.fetchone()
                     if result:
                         columns = [column[0] for column in cursor.description]
-                        return dict(zip(columns, result))
+                        config = dict(zip(columns, result))
+                        for key, value in config.items():
+                            if value is None:
+                                config[key] = ""
+                        return config
                     return None
         except Exception as e:
             print(f"Error in get_config: {e}")
@@ -127,10 +131,14 @@ class ConfigCog(commands.Cog):
             enable_button = discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_log_enable")
             disable_button = discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_log_disable")
             async def toggle_log_callback(interaction: discord.Interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_log_disable":
                         if not logging_enabled:
                             await interaction.response.send_message("Event logging is already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_logging'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -138,6 +146,7 @@ class ConfigCog(commands.Cog):
                     elif interaction.data['custom_id'] == "toggle_log_enable":
                         if logging_enabled:
                             await interaction.response.send_message("Event logging is already enabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_logging'] = True
                         await self.save_config(ctx.guild.id, config)
@@ -145,6 +154,8 @@ class ConfigCog(commands.Cog):
                 except Exception as e:
                     print(f"Error in toggle_log_callback: {e}")
                     raise e
+                finally:
+                    await interaction.message.delete()
             enable_button.callback = toggle_log_callback
             disable_button.callback = toggle_log_callback
             view.add_item(enable_button)
@@ -171,10 +182,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_suggest_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_suggest_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_suggest_disable":
                         if not suggestions_enabled:
                             await interaction.response.send_message("Suggestions are already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_suggest'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -185,6 +200,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** suggestions have been enabled, to set it up do `/set suggest`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_suggest_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_suggest_callback
             view.children[1].callback = toggle_suggest_callback
         except Exception as e:
@@ -207,10 +224,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_star_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_star_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_star_disable":
                         if not starboard_enabled:
                             await interaction.response.send_message("The starboard is already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_starboard'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -221,6 +242,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** starboard has been enabled, to set it up do `/set star`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_star_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_star_callback
             view.children[1].callback = toggle_star_callback
         except Exception as e:
@@ -243,10 +266,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_welcome_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_welcome_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_welcome_disable":
                         if not welcome_enabled:
                             await interaction.response.send_message("Welcome messages are already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_welcome'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -257,6 +284,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** welcome messages have been enabled, to set it up do `/set welcome`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_welcome_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_welcome_callback
             view.children[1].callback = toggle_welcome_callback
         except Exception as e:
@@ -280,10 +309,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_leave_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_leave_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_leave_disable":
                         if not leave_enabled:
                             await interaction.response.send_message("Leave messages are already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_leave'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -294,6 +327,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** leave messages have been enabled, to set it up do `/set leave`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_leave_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_leave_callback
             view.children[1].callback = toggle_leave_callback
         except Exception as e:
@@ -316,10 +351,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_boost_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_boost_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_boost_disable":
                         if not boost_enabled:
                             await interaction.response.send_message("Boost messages are already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_boost'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -330,6 +369,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** boost messages have been enabled, to set it up do `/set boost`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_boost_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_boost_callback
             view.children[1].callback = toggle_boost_callback
         except Exception as e:
@@ -352,10 +393,14 @@ class ConfigCog(commands.Cog):
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.danger, label="❌ Disable", custom_id="toggle_autorole_disable"))
             await ctx.send(embed=e, view=view)
             async def toggle_autorole_callback(interaction):
+                if interaction.user != ctx.author:
+                    await interaction.response.send_message("You don't have the required permissions for this action!", ephemeral=True)
+                    return
                 try:
                     if interaction.data['custom_id'] == "toggle_autorole_disable":
                         if not autorole_enabled:
                             await interaction.response.send_message("Autorole is already disabled!", ephemeral=True)
+                            await interaction.message.delete()
                             return
                         config['toggle_autorole'] = False
                         await self.save_config(ctx.guild.id, config)
@@ -366,6 +411,8 @@ class ConfigCog(commands.Cog):
                         await interaction.response.send_message(f"**{ctx.guild.name}'s** autorole has been enabled, to set it up do `/set autorole`!", ephemeral=True)
                 except Exception as e:
                     print(f"Error in toggle_autorole_callback: {e}")
+                finally:
+                    await interaction.message.delete()
             view.children[0].callback = toggle_autorole_callback
             view.children[1].callback = toggle_autorole_callback
         except Exception as e:
@@ -841,7 +888,7 @@ class ConfigCog(commands.Cog):
             perks = [config.get(f'boost_perk_{i}', '') for i in range(1, 11)]
             perks_list = "\n".join([f"> {perk}" for perk in perks if perk])
             embed = discord.Embed(color=boost_color)
-            embed.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
+            embed.title = f"<a:Boost:1258934863529246762> {ctx.author.name} boosted the server!"
             embed.set_thumbnail(url=ctx.author.avatar.url)
             embed.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name) + "\n\n***You'll now receive these perks:***\n" + perks_list
             await ctx.send(embed=embed)
