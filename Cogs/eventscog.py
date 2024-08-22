@@ -18,7 +18,13 @@ class EventsCog(commands.Cog):
                 result = await cursor.fetchone()
                 if result:
                     columns = [column[0] for column in cursor.description]
-                    return dict(zip(columns, result))
+                    config = dict(zip(columns, result))
+                    config['filtered_words'] = [w for w in config.get('filtered_words', '').split(',') if w]
+                    config['ignored_words'] = [w for w in config.get('ignored_words', '').split(',') if w]
+                    config['blocked_users'] = [u for u in config.get('blocked_users', '').split(',') if u]
+                    config['blocked_channels'] = [c for c in config.get('blocked_channels', '').split(',') if c]
+                    config['blocked_roles'] = [r for r in config.get('blocked_roles', '').split(',') if r]
+                    return config
                 return None
 
     @commands.Cog.listener()
@@ -94,23 +100,6 @@ class EventsCog(commands.Cog):
                 if welcome_channel:
                     welcome_text = welcome_message.format(name=member.name, mention=member.mention, server=member.guild.name)
                     await welcome_channel.send(welcome_text)
-        except Exception as e:
-            print(e)
-
-    @commands.Cog.listener()
-    async def on_member_join(self, member):
-        try:
-            config = await self.get_config(member.guild.id)
-            if not config:
-                return
-            welcome_status = config.get("toggle_welcome")
-            welcome_channel_id = config.get("welcome_channel")
-            welcome_message = config.get("welcome_message")
-            if welcome_status and welcome_channel_id and welcome_message:
-                welcome_channel = self.bot.get_channel(welcome_channel_id)
-                if welcome_channel:
-                    welcome_text = welcome_message.format(name=member.name, mention=member.mention, server=member.guild.name)
-                    await welcome_channel.send(welcome_text)
             autorole_status = config.get("toggle_autorole")
             if autorole_status:
                 role_ids = [config.get(f'role{i}') for i in range(1, 6)]
@@ -118,6 +107,23 @@ class EventsCog(commands.Cog):
                 for role in roles:
                     if role:
                         await member.add_roles(role)
+        except Exception as e:
+            print(e)
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        try:
+            config = await self.get_config(member.guild.id)
+            if not config:
+                return
+            leave_status = config.get("toggle_leave")
+            leave_channel_id = config.get("leave_channel")
+            leave_message = config.get("leave_message")
+            if leave_status and leave_channel_id and leave_message:
+                leave_channel = self.bot.get_channel(leave_channel_id)
+                if leave_channel:
+                    leave_text = leave_message.format(name=member.name, mention=member.mention, server=member.guild.name)
+                    await leave_channel.send(leave_text)
         except Exception as e:
             print(e)
 
@@ -143,6 +149,7 @@ class EventsCog(commands.Cog):
                 "> ⚖️ `/togglestar`\n"
                 "> ⚖️ `/togglesuggest`\n"
                 "> ⚖️ `/toggleboost`\n"
+                "> ⚖️ `/toggleautorole`\n"
                 "### Configuration Commands\n"
                 "> 🔔 **Set the bot prefix:** `/setprefix [prefix]` (Default is `!`)\n"
                 "> 🔰 **Set staff roles:** `/setstaff`\n"
@@ -152,6 +159,7 @@ class EventsCog(commands.Cog):
                 "> ⭐️ **Configure starboard:** `/setstar`\n"
                 "> 💡 **Configure suggestions:** `/setsuggest`\n"
                 "> <a:Boost:1258934863529246762> **Configure boost messages:** `/setboost`\n"
+                "> 🎭 **Configure auto roles:** `/setautoroles`\n"
                 f"> ⚙️ **Show {guild.name}'s Configurations:** `/configs`\n"
                 "\n*If you need any help, feel free to join our* [***Support Server***](https://discord.gg/t9g3Wbt9Sj)*!*."
                 )
@@ -176,6 +184,32 @@ class EventsCog(commands.Cog):
             await channel.send(embed=e)
         except Exception as e:
             print(e)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        try:
+            if message.author.bot:
+                return
+            config = await self.get_config(message.guild.id)
+            if not config or not config.get('toggle_filter'):
+                return
+            filtered_words = config.get('filtered_words', [])
+            ignored_words = config.get('ignored_words', [])
+            blocked_users = config.get('blocked_users', [])
+            blocked_channels = config.get('blocked_channels', [])
+            blocked_roles = config.get('blocked_roles', [])
+            if str(message.author.id) in blocked_users:
+                return
+            if str(message.channel.id) in blocked_channels:
+                return
+            if any(role.id in map(int, blocked_roles) for role in message.author.roles):
+                return
+            for word in filtered_words:
+                if word in message.content.lower().split() and word not in ignored_words:
+                    await message.delete()
+                    break
+        except Exception as e:
+            print(f"Error in on_message: {e}")
 
 async def setup(bot):
     await bot.add_cog(EventsCog(bot))
