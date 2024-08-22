@@ -191,8 +191,8 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Links",
-                value=f"<a:CommiePet:1264212309015007283> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)"
-                      f"\n<:Discord:1264212307945455739> [Support Server](https://discord.gg/t9g3Wbt9Sj)"
+                value=f"<a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)"
+                      f"\n<:Discord:1143769008420692009> [Support Server](https://discord.gg/t9g3Wbt9Sj)"
                       f"\n📮 [Vote for Commie](<https://top.gg/bot/1258968199899381771>)"
                       f"\n💰 [Tip Commie](<https://en.liberapay.com/CommieBot/>)"
                       f"\n<:GitHub:1123773190238392504> [Commie's GitHub](<https://github.com/GamingDerp/Commie/tree/main>)",
