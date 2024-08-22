@@ -5,7 +5,23 @@
 [![Tip Commie](https://img.shields.io/badge/Tip_Commie-green?logo=Liberapay)](https://en.liberapay.com/CommieBot/)
 
 # 🌌 Commie 🌌
-***Commie*** is an open source multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy!
+**It's extremely feature rich, and customizable, with things like:**
+> - 🗃 Event Logging (message deletions, edits, etc)
+> - ⭐️ Starboard
+> - 👋 Welcome/leave messages
+> - ✨ Boost messages
+> - 🛡️ Moderation Commands
+> - 🚨 Highlights
+> - ⏰ Reminders
+> - 💳 User Cards
+> - 🎭 Auto Roles
+> - 🔰 Self Roles
+> - 🎉 Giveaways
+> - ⚠️ Warning System
+> - 🗑 Chat Filter
+> - 💡﻿ Suggestions
+*and tons more!*
+
 > **Command List:** [Here](https://github.com/GamingDerp/Commie/blob/main/COMMANDS.md)
 
 # 📑 Credit
