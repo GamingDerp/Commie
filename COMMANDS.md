@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `101`
+**Command Count:** `112`
 
 ## ⚖️ Roles
 
