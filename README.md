@@ -20,6 +20,7 @@
 > - ⚠️ Warning System
 > - 🗑 Chat Filter
 > - 💡﻿ Suggestions
+
 *and tons more!*
 
 > **Command List:** [Here](https://github.com/GamingDerp/Commie/blob/main/COMMANDS.md)
