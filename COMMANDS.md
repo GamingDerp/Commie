@@ -129,6 +129,7 @@ togglewelcome | Toggles the welcome message feature for a server | `togglewelcom
 toggleleave | Toggles the leave message feature for a server | `toggleleave` | Admin
 toggleboost | Toggles the boost message feature for a server | `toggleboost` | Admin
 toggleautorole | Toggles the auto role feature for a server | `toggleautorole` | Admin
+togglefilter | Toggles the chat filter feature for a server | `togglefilter` | Admin
 setprefix | Sets server prefix | `setprefix <prefix>` | Admin
 setlog | Sets server logging channel | `setlog` | Admin
 setstaff | Sets the staff roles for a server | `setstaff` | Admin
@@ -138,6 +139,16 @@ setwelcome | Sets the welcome message for a server | `setwelcome` | Admin
 setleave | Sets the leave message for a server | `setleave` | Admin
 setboost | Sets the boost message for a server | `setboost` | Admin
 setautorole | Sets the auto roles for a server | `setautorole` | Admin
+filterhelp | Shows the Filter Help Menu | `filterhelp` | Admin
+filtershow | Shows the server's chat filter information | `filtershow` | Admin
+filterdefaults | Adds a default list of slurs to a servers chat filter | `filterdefaults` | Admin
+filteradd | Adds a word to a servers chat filter | `filteradd <word>` | Admin
+filterremove | Removes a word from a servers chat filter | `filterremove <word>` | Admin
+filterignore | Adds a word to a servers chat filter ignore list | `filterignore <word>` | Admin
+filterunignore | Removes a word from a servers chat filter ignore list | `filterunignore <word>` | Admin
+filterblock | Blocks a user, channel or role from a servers chat filter | `filterblock <target>` | Admin
+filterunblock | Unblocks a user, channel or role from a servers chat filter | `filterunblock <target>` | Admin
+filterclear | Clears a servers chat filter list | `filterclear` | Admin
 testwelcome | Sends the welcome message for a server | `testwelcome` | Admin
 testleave | Sends the leave message for a server | `testleave` | Admin
 testboost | Sends the boost embed for a server | `testboost` | Admin
