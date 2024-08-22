@@ -79,7 +79,7 @@ class HighlightCog(commands.Cog):
         if not await self.has_permission(ctx.author, ctx.guild):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True)
             return
-        default_words = {"bad", "dumb", "mean", "stupid", "weird", "gross", "nasty"}
+        default_words = {"nigger", "nigga", "faggot", "fag", "retarded", "retard", "kys"}
         await self.create_user_table()
         word_list, ignored_words_list, ignored_channels, ignored_users = await self.get_user_data(ctx.author.id, ctx.guild.id)
         existing_words = set(word_list.split(',')) if word_list else set()
@@ -246,10 +246,10 @@ class HighlightCog(commands.Cog):
         user = self.bot.get_user(ctx.author.id)
         username = user.name if user else "Unknown User"
         e = discord.Embed(title=f"🔍 {username}'s Highlight List 🔍", color=commie_color)
-        e.add_field(name="📑 Highlighted Words", value='\n'.join([f"> - {word}" for word in words]) if words else "None", inline=False)
-        e.add_field(name="🚫 Ignored Words", value='\n'.join([f"> - {word}" for word in ignored_words]) if ignored_words else "None", inline=False)
-        e.add_field(name="📰 Blocked Channels", value='\n'.join([f"> - <#{channel}>" for channel in channels]) if channels else "None", inline=False)
-        e.add_field(name="👤 Blocked Users", value='\n'.join([f"> - <@{user}>" for user in users]) if users else "None", inline=False)
+        e.add_field(name="📑 Highlighted Words", value='\n'.join([f"> - {word}" for word in words]) if words else "> None", inline=False)
+        e.add_field(name="🚫 Ignored Words", value='\n'.join([f"> - {word}" for word in ignored_words]) if ignored_words else "> None", inline=False)
+        e.add_field(name="📰 Blocked Channels", value='\n'.join([f"> - <#{channel}>" for channel in channels]) if channels else "> None", inline=False)
+        e.add_field(name="👤 Blocked Users", value='\n'.join([f"> - <@{user}>" for user in users]) if users else "> None", inline=False)
         await ctx.send(embed=e, ephemeral=True)
 
     @highlight_group.command(name="help", description="Shows the highlight help menu")
@@ -259,7 +259,7 @@ class HighlightCog(commands.Cog):
                 await ctx.send("You don't have the required permissions for this command!", ephemeral=True)
                 return
             e = discord.Embed(title=f"⚙️ Highlight Help ⚙️", color=commie_color)
-            e.description = "Here are the available public commands for managing highlights. \n### ❓ What does Highlights do ❓ \n'Highlight' commands help with moderation! Each time a word in your 'highlight list' is mentioned, it will **DM** you with information about the user and a link to the message! \n\n### 📌 Highlight Commands 📌 \n> ⚙️ **Highlight help** **|** `highlight help` **|** Sends the Highlight Help Menu \n> 📑 **Highlight defaults** **|** `highlight defaults` **|** Adds a default list of slurs to your highlight list \n> ➕ **Highlight add** **|** `highlight add [word]` **|** Adds a word to your highlight list \n> ➖ **Highlight remove** **|** `highlight remove [word]` **|** Removes a word from your highlight list \n> ♻️ **Highlight clear** **|** `highlight clear` **|** Clears your highlight list \n> 🔕 **Highlight ignore** **|** `highlight ignore [word]` **|** Ignores part of a word in your highlight list **Ex:** You won't get DM'd when someone says 'hit' if you have '**hi**' in your highlight list \n> 🔔 **Highlight unignore** **|** `highlight unignore [word]` **|** Unignores part of a word in your highlight list \n> ❌ **Highlight block** **|** `highlight block [item]` **|** [`item` can either be a channel mention or user mention], when a user or channel is 'blocked' you won't get DM'd when they say a word in your highlight list \n> ✅ **Highlight unblock** **|** `highlight unblock [item]` **|** Unblocks a user or channel you had blocked [`item` can either be a channel mention or user mention]\n> 📰 **Highlight show** **|** `highlight show` **|** Shows all the information about your highlight list"
+            e.description = "Here are the available public commands for managing highlights. \n### ❓ What does Highlights do ❓ \n'Highlight' commands help with moderation! Each time a word in your 'highlight list' is mentioned, it will **DM** you with information about the user and a link to the message! \n\n### 📌 Highlight Commands 📌 \n> ⚙️ **Highlight help** **|** `highlight help` **|** Sends the Highlight Help Menu \n> 📑 **Highlight defaults** **|** `highlight defaults` **|** Adds a default list of slurs to your highlight list \n> ➕ **Highlight add** **|** `highlight add [word]` **|** Adds a word to your highlight list \n> ➖ **Highlight remove** **|** `highlight remove [word]` **|** Removes a word from your highlight list \n> ♻️ **Highlight clear** **|** `highlight clear` **|** Clears your highlight list \n> 🔕 **Highlight ignore** **|** `highlight ignore [word]` **|** Ignores a word that contains a word in your highlight list **Ex:** If yuou ignore 'hit', you won't get DM'd when someone says '**hi**'. \n> 🔔 **Highlight unignore** **|** `highlight unignore [word]` **|** Unignores a word that contains a word in your highlight list \n> ❌ **Highlight block** **|** `highlight block [item]` **|** [`item` can either be a channel mention or user mention], when a user or channel is 'blocked' you won't get DM'd when they say a word in your highlight list \n> ✅ **Highlight unblock** **|** `highlight unblock [item]` **|** Unblocks a user or channel you had blocked [`item` can either be a channel mention or user mention]\n> 📰 **Highlight show** **|** `highlight show` **|** Shows all the information about your highlight list"
             await ctx.send(embed=e, ephemeral=True)
         except Exception as e:
             print(e)
