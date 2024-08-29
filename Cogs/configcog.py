@@ -62,7 +62,8 @@ class ConfigCog(commands.Cog):
                     ignored_words TEXT DEFAULT '',
                     blocked_users TEXT DEFAULT '',
                     blocked_channels TEXT DEFAULT '',
-                    blocked_roles TEXT DEFAULT ''
+                    blocked_roles TEXT DEFAULT '',
+                    blocked_categories TEXT DEFAULT ''
                 )
             ''')
             await db.commit()
@@ -627,7 +628,7 @@ class ConfigCog(commands.Cog):
             while True:
                 msg = await self.bot.wait_for('message', check=check)
                 welcome_message = msg.content
-                preview_message = welcome_message.format(name="ExampleUser", mention=ctx.author.mention, server=ctx.guild.name)
+                preview_message = welcome_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
                 confirm_embed = discord.Embed(color=commie_color)
                 confirm_embed.set_author(name=f"{ctx.guild.name}'s Welcome Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
                 confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
@@ -678,7 +679,7 @@ class ConfigCog(commands.Cog):
             while True:
                 msg = await self.bot.wait_for('message', check=check)
                 leave_message = msg.content
-                preview_message = leave_message.format(name="ExampleUser", mention=ctx.author.mention, server=ctx.guild.name)
+                preview_message = leave_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
                 confirm_embed = discord.Embed(color=commie_color)
                 confirm_embed.set_author(name=f"{ctx.guild.name}'s Leave Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
                 confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
@@ -723,31 +724,40 @@ class ConfigCog(commands.Cog):
                             "🔔 `{mention}` = **Mentions the Boosting member**\n"
                             "📰 `{server}` = **Server name**\n\n"
                             "**Example:** `Thank you {mention} for boosting {server}!`")
-            await ctx.send(embed=e)
-            initial_embed = discord.Embed(color=commie_color)
-            initial_embed.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
-            initial_embed.set_thumbnail(url=ctx.author.avatar.url)
-            initial_embed.description = "**[ Placeholder ]** \n\n***You'll now receive these perks:*** \n> [ Placeholder Perk 1 ]"
-            preview_message = await ctx.send(embed=initial_embed)
-            await ctx.send("Customize your boost message description! For example: Thank you `{mention}` for boosting the server!")
+            instruction_message = await ctx.send("Customize your boost message description!", embed=e)
             def check(msg):
                 return msg.author == ctx.author and msg.channel == ctx.channel
             msg = await self.bot.wait_for('message', check=check, timeout=300)
             description = msg.content
-            initial_embed.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name) + "\n\n***You'll now receive these perks:***"
-            await preview_message.edit(embed=initial_embed)
+            await instruction_message.delete()
+            await msg.delete()
+            preview_embed = discord.Embed(color=boost_color)
+            preview_embed.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
+            preview_embed.set_thumbnail(url=ctx.author.avatar.url)
+            preview_embed.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name) + "\n\n***You'll now receive these perks:***"
+            preview_message = await ctx.send(embed=preview_embed)
             perks = []
             for i in range(1, 11):
-                await ctx.send(f"What is your {['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'][i-1]} booster perk? Once it's added to the embed, say '**done**' to go to the next perk. If that's all your perks, say '**complete**'!")
+                prompt_message = await ctx.send(f"What is your **{['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth'][i-1]}** booster perk? Once it's added to the embed, say '**done**' to go to the next perk. If that's all your perks, say '**complete**'!")
                 msg = await self.bot.wait_for('message', check=check, timeout=300)
                 if msg.content.lower() == 'complete':
+                    await msg.delete()
+                    await prompt_message.delete()
                     break
+                if msg.content.lower() == 'done':
+                    await msg.delete()
+                    await prompt_message.delete()
+                    continue
                 perks.append(msg.content)
-                initial_embed.description += f"\n> {msg.content}"
-                await preview_message.edit(embed=initial_embed)
-            await ctx.send("Mention the channel the boost message should be sent in!")
+                preview_embed.description += f"\n> {msg.content}"
+                await preview_message.edit(embed=preview_embed)
+                await msg.delete()
+                await prompt_message.delete()
+            channel_prompt_message = await ctx.send("Mention the channel the boost message should be sent in!")
             msg = await self.bot.wait_for('message', check=check, timeout=300)
             channel = msg.channel_mentions[0]
+            await channel_prompt_message.delete()
+            await msg.delete()
             config = await self.get_config(ctx.guild.id) or {}
             config['toggle_boost'] = True
             config['boost_channel'] = channel.id
@@ -755,9 +765,9 @@ class ConfigCog(commands.Cog):
             for i, perk in enumerate(perks, 1):
                 config[f'boost_perk_{i}'] = perk
             await self.save_config(ctx.guild.id, config)
-            await ctx.send(f"**{ctx.guild.name}'s** boost message channel has been set to {channel.mention}! To see your boost message do `/test boost`!")
+            await ctx.send(f"**{ctx.guild.name}'s** boost message channel has been set to {channel.mention}! To see your boost message, use `/test boost`!")
         except asyncio.TimeoutError:
-            await ctx.send("Timed out. Boost setup cancelled.", delete_after=10)
+            await ctx.send("Timed out. Boost setup canceled.", delete_after=10)
         except Exception as e:
             print(f"Error in boost command: {e}")
 
@@ -825,7 +835,7 @@ class ConfigCog(commands.Cog):
         embed.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
         return embed
 
-    @commands.group(name="test", description="Test commands for various features")
+    @commands.hybrid_group(name="test", description="Test commands for various features")
     async def test_group(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send("Use `/test <feature>` to test specific features.")
@@ -835,42 +845,51 @@ class ConfigCog(commands.Cog):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if config and config.get('toggle_welcome') and config.get('welcome_message'):
-            welcome_message = config['welcome_message'].format(name="ExampleUser", mention=ctx.author.mention, server=ctx.guild.name)
-            await ctx.send(welcome_message)
-        else:
-            await ctx.send(f"**{ctx.guild.name}** doesn't have a welcome message set! To **toggle** welcome messages, use `/toggle welcome`, to **set** a welcome message, use `/set welcome`!")
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if config and config.get('toggle_welcome') and config.get('welcome_message'):
+                welcome_message = config['welcome_message'].format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
+                await ctx.send(welcome_message)
+            else:
+                await ctx.send(f"**{ctx.guild.name}** doesn't have a welcome message set! To **toggle** welcome messages, use `/toggle welcome`, to **set** a welcome message, use `/set welcome`!")
+        except Exception as e:
+            print(e)
 
     @test_group.command(name="leave", description="Test the server's leave message")
     async def leave(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if config and config.get('toggle_leave') and config.get('leave_message'):
-            leave_message = config['leave_message'].format(name="ExampleUser", mention=ctx.author.mention, server=ctx.guild.name)
-            await ctx.send(leave_message)
-        else:
-            await ctx.send(f"**{ctx.guild.name}** doesn't have a leave message set! To **toggle** leave messages, use `/toggle leave`, to **set** a leave message, use `/set leave`!")
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if config and config.get('toggle_leave') and config.get('leave_message'):
+                leave_message = config['leave_message'].format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
+                await ctx.send(leave_message)
+            else:
+                await ctx.send(f"**{ctx.guild.name}** doesn't have a leave message set! To **toggle** leave messages, use `/toggle leave`, to **set** a leave message, use `/set leave`!")
+        except Exception as e:
+            print(e)
 
     @test_group.command(name="boost", description="Test the server's boost message")
     async def boost(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if config and config.get('toggle_boost') and config.get('boost_channel'):
-            description = config.get('description', "Thank you {mention} for boosting {server}!")
-            perks = [config.get(f'boost_perk_{i}', '') for i in range(1, 11)]
-            perks_list = "\n".join([f"> {perk}" for perk in perks if perk])
-            embed = discord.Embed(color=boost_color)
-            embed.title = f"<a:Boost:1258934863529246762> {ctx.author.name} boosted the server!"
-            embed.set_thumbnail(url=ctx.author.avatar.url)
-            embed.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name) + "\n\n***You'll now receive these perks:***\n" + perks_list
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(f"**{ctx.guild.name}** doesn't have a boost message set! To **toggle** boost messages, use `/toggle boost`, to **set** a boost message, use `/set boost`!")
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if config and config.get('toggle_boost') and config.get('boost_channel'):
+                description = config.get('description', "Thank you {mention} for boosting {server}!")
+                perks = [config.get(f'boost_perk_{i}', '') for i in range(1, 11)]
+                perks_list = "\n".join([f"> {perk}" for perk in perks if perk])
+                embed = discord.Embed(color=boost_color)
+                embed.title = f"<a:Boost:1261831287786704966> {ctx.author.name} boosted the server!"
+                embed.set_thumbnail(url=ctx.author.avatar.url)
+                embed.description = description.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name) + "\n\n***You'll now receive these perks:***\n" + perks_list
+                await ctx.send(embed=embed)
+            else:
+                await ctx.send(f"**{ctx.guild.name}** doesn't have a boost message set! To **toggle** boost messages, use `/toggle boost`, to **set** a boost message, use `/set boost`!")
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_group(name="filter", description="Manage the chat filter")
     async def filter_group(self, ctx):
@@ -882,202 +901,259 @@ class ConfigCog(commands.Cog):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        filtered_words = [w for w in config.get('filtered_words', '').split(',') if w]
-        if word in filtered_words:
-            await ctx.send(f"**{word}** is already in the filter.", ephemeral=True)
-            return
-        filtered_words.append(word)
-        config['filtered_words'] = ','.join(filtered_words)
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send(f"**{word}** added to the filter.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            filtered_words = [w for w in config.get('filtered_words', '').split(',') if w]
+            if word in filtered_words:
+                await ctx.send(f"**{word}** is already in the filter.", ephemeral=True)
+                return
+            filtered_words.append(word)
+            config['filtered_words'] = ','.join(filtered_words)
+            await self.save_config(ctx.guild.id, config)
+            await ctx.send(f"**{word}** has been added to the filter.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="remove", description="Remove a word from the filter")
     async def remove(self, ctx, word: str):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        filtered_words = config.get('filtered_words', '').split(',')
-        if word not in filtered_words:
-            await ctx.send(f"**{word}** is not in the filter.", ephemeral=True)
-            return
-        filtered_words.remove(word)
-        config['filtered_words'] = ','.join(filtered_words)
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send(f"**{word}** removed from the filter.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            filtered_words = config.get('filtered_words', '').split(',')
+            if word not in filtered_words:
+                await ctx.send(f"**{word}** is not in the filter.", ephemeral=True)
+                return
+            filtered_words.remove(word)
+            config['filtered_words'] = ','.join(filtered_words)
+            await self.save_config(ctx.guild.id, config)
+            await ctx.send(f"**{word}** removed from the filter.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="clear", description="Clear the filtered words list")
     async def clear(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        config['filtered_words'] = ''
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send("Filtered words list cleared.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            config['filtered_words'] = ''
+            await self.save_config(ctx.guild.id, config)
+            await ctx.send("Filtered words list cleared.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
-    @filter_group.command(name="block", description="Block a user, channel, or role from the filter")
-    async def block(self, ctx, *, target: discord.Member or discord.TextChannel or discord.Role):
+    @filter_group.command(name="block", description="Block a user, role, channel, or category from the filter")
+    async def block(self, ctx, user: discord.Member = None, role: discord.Role = None, channel: discord.TextChannel = None, category_id: str = None):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        if isinstance(target, discord.Member):
-            blocked_users = config.get('blocked_users', '').split(',')
-            blocked_users.append(str(target.id))
-            config['blocked_users'] = ','.join(blocked_users)
-        elif isinstance(target, discord.TextChannel):
-            blocked_channels = config.get('blocked_channels', '').split(',')
-            blocked_channels.append(str(target.id))
-            config['blocked_channels'] = ','.join(blocked_channels)
-        elif isinstance(target, discord.Role):
-            blocked_roles = config.get('blocked_roles', '').split(',')
-            blocked_roles.append(str(target.id))
-            config['blocked_roles'] = ','.join(blocked_roles)
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send(f"{target.name} has been blocked from the chat filter.", ephemeral=True)
-
-    @filter_group.command(name="unblock", description="Remove a user, channel, or role from the chat filter's block list")
-    async def filterunblock(self, ctx, target: discord.User = None, channel: discord.TextChannel = None, role: discord.Role = None):
-        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
-            return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        if target:
-            blocked_users = config.get('blocked_users', "").split(',')
-            if str(target.id) in blocked_users:
-                blocked_users.remove(str(target.id))
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            if user:
+                blocked_users = config.get('blocked_users', '').split(',')
+                blocked_users.append(str(user.id))
                 config['blocked_users'] = ','.join(blocked_users)
-                await self.save_config(ctx.guild.id, config)
-                await ctx.send(f"**{target.mention}** has been removed from the blocked users list for **{ctx.guild.name}**.", ephemeral=True)
-            else:
-                await ctx.send(f"**{target.mention}** is not in the blocked users list for **{ctx.guild.name}**.", ephemeral=True)
-        elif channel:
-            blocked_channels = config.get('blocked_channels', "").split(',')
-            if str(channel.id) in blocked_channels:
-                blocked_channels.remove(str(channel.id))
-                config['blocked_channels'] = ','.join(blocked_channels)
-                await self.save_config(ctx.guild.id, config)
-                await ctx.send(f"**{channel.mention}** has been removed from the blocked channels list for **{ctx.guild.name}**.", ephemeral=True)
-            else:
-                await ctx.send(f"**{channel.mention}** is not in the blocked channels list for **{ctx.guild.name}**.", ephemeral=True)
-        elif role:
-            blocked_roles = config.get('blocked_roles', "").split(',')
-            if str(role.id) in blocked_roles:
-                blocked_roles.remove(str(role.id))
+                await ctx.send(f"**{user.name}** has been blocked from the chat filter.", ephemeral=True)
+            if role:
+                blocked_roles = config.get('blocked_roles', '').split(',')
+                blocked_roles.append(str(role.id))
                 config['blocked_roles'] = ','.join(blocked_roles)
-                await self.save_config(ctx.guild.id, config)
-                await ctx.send(f"**{role.name}** has been removed from the blocked roles list for **{ctx.guild.name}**.", ephemeral=True)
-            else:
-                await ctx.send(f"**{role.name}** is not in the blocked roles list for **{ctx.guild.name}**.", ephemeral=True)
-        else:
-            await ctx.send("Please specify a user, channel, or role to unblock.", ephemeral=True)
+                await ctx.send(f"**{role.name}** has been blocked from the chat filter.", ephemeral=True)
+            if channel:
+                blocked_channels = config.get('blocked_channels', '').split(',')
+                blocked_channels.append(str(channel.id))
+                config['blocked_channels'] = ','.join(blocked_channels)
+                await ctx.send(f"**{channel.name}** has been blocked from the chat filter.", ephemeral=True)
+            if category_id:
+                try:
+                    category = ctx.guild.get_channel(int(category_id))
+                    if not category or category.type != discord.ChannelType.category:
+                        await ctx.send("Invalid category ID provided. Please input a valid category ID.", ephemeral=True, delete_after=10)
+                        return
+                    blocked_categories = config.get('blocked_categories', '').split(',')
+                    blocked_categories.append(str(category_id))
+                    config['blocked_categories'] = ','.join(blocked_categories)
+                    await ctx.send(f"**{category.name}** has been blocked from the chat filter.", ephemeral=True)
+                except ValueError:
+                    await ctx.send("Invalid category ID format. Please input a valid integer.", ephemeral=True, delete_after=10)
+                    return
+            await self.save_config(ctx.guild.id, config)
+        except Exception as e:
+            print(e)
+
+    @filter_group.command(name="unblock", description="Remove a user, role, channel, or category from the chat filter's block list")
+    async def unblock(self, ctx, user: discord.Member = None, role: discord.Role = None, channel: discord.TextChannel = None, category_id: str = None):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            if user:
+                blocked_users = config.get('blocked_users', '').split(',')
+                if str(user.id) in blocked_users:
+                    blocked_users.remove(str(user.id))
+                    config['blocked_users'] = ','.join(blocked_users)
+                    await ctx.send(f"**{user.name}** has been unblocked from the chat filter.", ephemeral=True)
+                else:
+                    await ctx.send(f"**{user.name}** is not blocked from the chat filter.", ephemeral=True)
+            if role:
+                blocked_roles = config.get('blocked_roles', '').split(',')
+                if str(role.id) in blocked_roles:
+                    blocked_roles.remove(str(role.id))
+                    config['blocked_roles'] = ','.join(blocked_roles)
+                    await ctx.send(f"**{role.name}** has been unblocked from the chat filter.", ephemeral=True)
+                else:
+                    await ctx.send(f"**{role.name}** is not blocked from the chat filter.", ephemeral=True)
+            if channel:
+                blocked_channels = config.get('blocked_channels', '').split(',')
+                if str(channel.id) in blocked_channels:
+                    blocked_channels.remove(str(channel.id))
+                    config['blocked_channels'] = ','.join(blocked_channels)
+                    await ctx.send(f"**{channel.name}** has been unblocked from the chat filter.", ephemeral=True)
+                else:
+                    await ctx.send(f"**{channel.name}** is not blocked from the chat filter.", ephemeral=True)
+            if category_id:
+                try:
+                    blocked_categories = config.get('blocked_categories', '').split(',')
+                    if category_id in blocked_categories:
+                        blocked_categories.remove(category_id)
+                        config['blocked_categories'] = ','.join(blocked_categories)
+                        category = ctx.guild.get_channel(int(category_id))
+                        if category:
+                            await ctx.send(f"**{category.name}** has been unblocked from the chat filter.", ephemeral=True)
+                        else:
+                            await ctx.send(f"Category ID **{category_id}** has been unblocked from the chat filter.", ephemeral=True)
+                    else:
+                        await ctx.send(f"Category ID **{category_id}** is not blocked from the chat filter.", ephemeral=True)
+                except ValueError:
+                    await ctx.send("Invalid category ID format. Please input a valid integer.", ephemeral=True, delete_after=10)
+                    return
+            await self.save_config(ctx.guild.id, config)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="ignore", description="Ignore a word from the filter")
     async def ignore(self, ctx, word: str):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        ignored_words = config.get('ignored_words', '').split(',')
-        if word in ignored_words:
-            await ctx.send(f"**{word}** is already in the ignored list.", ephemeral=True)
-            return
-        ignored_words.append(word)
-        config['ignored_words'] = ','.join(ignored_words)
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send(f"**{word}** added to the ignored list.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            ignored_words = config.get('ignored_words', '').split(',')
+            if word in ignored_words:
+                await ctx.send(f"**{word}** is already in the ignore list.", ephemeral=True)
+                return
+            ignored_words.append(word)
+            config['ignored_words'] = ','.join(ignored_words)
+            await self.save_config(ctx.guild.id, config)
+            await ctx.send(f"**{word}** has been added to the ignore list", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="unignore", description="Remove a word from the chat filter's ignore list")
     async def unignore(self, ctx, word: str):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        ignored_words = config.get('ignored_words', "").split(',')
-        if word in ignored_words:
-            ignored_words.remove(word)
-            config['ignored_words'] = ','.join(ignored_words)
-            await self.save_config(ctx.guild.id, config)
-            await ctx.send(f"**{word}** has been removed from the ignored words list for **{ctx.guild.name}**.", ephemeral=True)
-        else:
-            await ctx.send(f"**{word}** is not in the ignored words list for **{ctx.guild.name}**.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            ignored_words = config.get('ignored_words', "").split(',')
+            if word in ignored_words:
+                ignored_words.remove(word)
+                config['ignored_words'] = ','.join(ignored_words)
+                await self.save_config(ctx.guild.id, config)
+                await ctx.send(f"**{word}** has been removed from the ignore list", ephemeral=True)
+            else:
+                await ctx.send(f"**{word}** is not in the ignore list.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="defaults", description="Add a default list of words to the filter")
     async def defaults(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        default_words = ["nigger", "nigga", "faggot", "fag", "retarded", "retard", "kys"]
-        filtered_words = config.get('filtered_words', '').split(',')
-        filtered_words.extend([word for word in default_words if word not in filtered_words])
-        config['filtered_words'] = ','.join(filtered_words)
-        await self.save_config(ctx.guild.id, config)
-        await ctx.send("Default words added to the filter.", ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            default_words = ["nigger", "nigga", "faggot", "fag", "kys"]
+            filtered_words = config.get('filtered_words', '').split(',')
+            filtered_words.extend([word for word in default_words if word not in filtered_words])
+            config['filtered_words'] = ','.join(filtered_words)
+            await self.save_config(ctx.guild.id, config)
+            await ctx.send("Default words added to the filter.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="show", description="Show the current chat filter settings")
     async def show(self, ctx):
         if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        config = await self.get_config(ctx.guild.id)
-        if not config or not config.get('toggle_filter'):
-            await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
-            return
-        e = discord.Embed(color=commie_color)
-        e.set_author(name=f"{ctx.guild.name} Chat Filter Settings", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-        e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
-        filtered_words = config.get('filtered_words', '').split(',')
-        filtered_words_display = ', '.join([f"{word}" for word in filtered_words if word]) or "None"
-        e.add_field(name="📑 Filtered Words", value=f"> {filtered_words_display}", inline=False)
-        ignored_words = config.get('ignored_words', '').split(',')
-        ignored_words_display = ', '.join([f"{word}" for word in ignored_words if word]) or "None"
-        e.add_field(name="🚫 Ignored Words", value=f"> {ignored_words_display}", inline=False)
-        blocked_users = config.get('blocked_users', '').split(',')
-        blocked_users_display = ', '.join([f"<@{uid}>" for uid in blocked_users if uid and ctx.guild.get_member(int(uid))]) or "None"
-        e.add_field(name="👤 Blocked Users", value=f"> {blocked_users_display}", inline=False)
-        blocked_channels = config.get('blocked_channels', '').split(',')
-        blocked_channels_display = ', '.join([f"<#{cid}>" for cid in blocked_channels if cid and ctx.guild.get_channel(int(cid))]) or "None"
-        e.add_field(name="📰 Blocked Channels", value=f"> {blocked_channels_display}", inline=False)
-        blocked_roles = config.get('blocked_roles', '').split(',')
-        blocked_roles_display = ', '.join([f"<@&{rid}>" for rid in blocked_roles if rid and ctx.guild.get_role(int(rid))]) or "None"
-        e.add_field(name="🎭 Blocked Roles", value=f"> {blocked_roles_display}", inline=False)
-        await ctx.send(embed=e, ephemeral=True)
+        try:
+            config = await self.get_config(ctx.guild.id)
+            if not config or not config.get('toggle_filter'):
+                await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
+                return
+            e = discord.Embed(color=commie_color)
+            e.set_author(name=f"{ctx.guild.name} Chat Filter Settings", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            filtered_words = config.get('filtered_words', '').split(',')
+            filtered_words_display = ', '.join([f"{word}" for word in filtered_words if word]) or "None"
+            e.add_field(name="📑 Filtered Words", value=f"> {filtered_words_display}", inline=False)
+            ignored_words = config.get('ignored_words', '').split(',')
+            ignored_words_display = ', '.join([f"{word}" for word in ignored_words if word]) or "None"
+            e.add_field(name="🚫 Ignored Words", value=f"> {ignored_words_display}", inline=False)
+            blocked_users = config.get('blocked_users', '').split(',')
+            blocked_users_display = ', '.join([f"<@{uid}>" for uid in blocked_users if uid and ctx.guild.get_member(int(uid))]) or "None"
+            e.add_field(name="👤 Blocked Users", value=f"> {blocked_users_display}", inline=False)
+            blocked_roles = config.get('blocked_roles', '').split(',')
+            blocked_roles_display = ', '.join([f"<@&{rid}>" for rid in blocked_roles if rid and ctx.guild.get_role(int(rid))]) or "None"
+            e.add_field(name="🎭 Blocked Roles", value=f"> {blocked_roles_display}", inline=False)
+            blocked_channels = config.get('blocked_channels', '').split(',')
+            blocked_channels_display = ', '.join([f"<#{cid}>" for cid in blocked_channels if cid and ctx.guild.get_channel(int(cid))]) or "None"
+            e.add_field(name="📰 Blocked Channels", value=f"> {blocked_channels_display}", inline=False)
+            blocked_categories = config.get('blocked_categories', '').split(',')
+            blocked_categories_display = ', '.join([f"{ctx.guild.get_channel(int(catid)).name}" for catid in blocked_categories if catid and ctx.guild.get_channel(int(catid))]) or "None"
+            e.add_field(name="📍 Blocked Categories", value=f"> {blocked_categories_display}", inline=False)
+            await ctx.send(embed=e, ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @filter_group.command(name="help", description="Shows the filter help menu")
     async def help(self, ctx):
+        if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True)
+            return
         try:
-            if not ctx.author.guild_permissions.administrator and not await self.has_admin_role(ctx.author, ctx.guild.id):
-                await ctx.send("You don't have the required permissions for this command!", ephemeral=True)
-                return
             e = discord.Embed(title=f"⚙️ Filter Help ⚙️", color=commie_color)
-            e.description = f"Here are the available public commands for managing the Filter. \n\n### 📌 Filter Commands 📌 \n> 💡 **Toggle filter** **|** `toggle filter` **|** Toggles the chat filter feature \n> ⚙️ **Filter help** **|** `filter help` **|** Sends the Filter Help Menu \n> 📑 **Filter defaults** **|** `filter defaults` **|** Adds a default list of slurs to **{ctx.guild.name}'s** filter \n> ➕ **Filter add** **|** `filter add [word]` **|** Adds a word to the filter \n> ➖ **Filter remove** **|** `filter remove [word]` **|** Removes a word from the filter \n> ♻️ **Filter clear** **|** `filter clear` **|** Clears the filter \n> 🔕 **Filter ignore** **|** `filter ignore [word]` **|** Ignores a word that contains a word in the filter **Ex:** If you ignore 'hit', the message won't be deleted when someone says '**hi**'. \n> 🔔 **Filter unignore** **|** `filter unignore [word]` **|** Unignores a word that contains a word in the filter \n> ❌ **Filter block** **|** `filter block [target]` **|** [`target` can either be a user mention, channel mention or role mention], when a user, channel or role is 'blocked' their message won't get deleted when they say a word in the filter \n> ✅ **Filter unblock** **|** `filter unblock [target]` **|** Unblocks a user, channel or role you had blocked [`target` can either be a user mention, channel mention or role mention]\n> 📰 **Filter show** **|** `filter show` **|** Shows all the information about **{ctx.guild.name}'s** filter"
+            e.description = f"Here are the available public commands for managing the Filter. \n\n### 📌 Filter Commands 📌 \n> 💡 **Toggle filter** **|** `toggle filter` **|** Toggles the chat filter feature \n> ⚙️ **Filter help** **|** `filter help` **|** Sends the Filter Help Menu \n> 📑 **Filter defaults** **|** `filter defaults` **|** Adds a default list of slurs to **{ctx.guild.name}'s** filter \n> ➕ **Filter add** **|** `filter add [word]` **|** Adds a word to the filter \n> ➖ **Filter remove** **|** `filter remove [word]` **|** Removes a word from the filter \n> ♻️ **Filter clear** **|** `filter clear` **|** Clears the filter \n> 🔕 **Filter ignore** **|** `filter ignore [word]` **|** Ignores a word that contains a word in the filter **Ex:** If you ignore 'hit', the message won't be deleted when someone says '**hi**'. \n> 🔔 **Filter unignore** **|** `filter unignore [word]` **|** Unignores a word that contains a word in the filter \n> ❌ **Filter block** **|** `filter block [user] [role] [channel] [category_id]` **|** When a user, role, channel or category is 'blocked' their message won't get deleted when they say a word in the filter \n> ✅ **Filter unblock** **|** `filter unblock [user] [role] [channel] [category_id]` **|** Unblocks a user, role, channel or category you had blocked\n> 📰 **Filter show** **|** `filter show` **|** Shows all the information about the chat filter"
             await ctx.send(embed=e, ephemeral=True)
         except Exception as e:
             print(e)
