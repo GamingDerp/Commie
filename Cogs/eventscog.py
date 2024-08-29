@@ -13,19 +13,24 @@ class EventsCog(commands.Cog):
         self.processed_messages = set()
     
     async def get_config(self, guild_id):
-        async with aiosqlite.connect("dbs/configs.db") as db:
-            async with db.execute("SELECT * FROM server_configs WHERE server_id = ?", (guild_id,)) as cursor:
-                result = await cursor.fetchone()
-                if result:
-                    columns = [column[0] for column in cursor.description]
-                    config = dict(zip(columns, result))
-                    config['filtered_words'] = [w for w in config.get('filtered_words', '').split(',') if w]
-                    config['ignored_words'] = [w for w in config.get('ignored_words', '').split(',') if w]
-                    config['blocked_users'] = [u for u in config.get('blocked_users', '').split(',') if u]
-                    config['blocked_channels'] = [c for c in config.get('blocked_channels', '').split(',') if c]
-                    config['blocked_roles'] = [r for r in config.get('blocked_roles', '').split(',') if r]
-                    return config
-                return None
+        try:
+            async with aiosqlite.connect("dbs/configs.db") as db:
+                async with db.execute("SELECT * FROM server_configs WHERE server_id = ?", (guild_id,)) as cursor:
+                    result = await cursor.fetchone()
+                    if result:
+                        columns = [column[0] for column in cursor.description]
+                        config = dict(zip(columns, result))
+                        config['filtered_words'] = [w for w in config.get('filtered_words', '').split(',') if w]
+                        config['ignored_words'] = [w for w in config.get('ignored_words', '').split(',') if w]
+                        config['blocked_users'] = [u for u in config.get('blocked_users', '').split(',') if u]
+                        config['blocked_roles'] = [r for r in config.get('blocked_roles', '').split(',') if r]
+                        config['blocked_channels'] = [c for c in config.get('blocked_channels', '').split(',') if c]
+                        config['blocked_categories'] = [cat for cat in config.get('blocked_categories', '').split(',') if cat]
+                        return config
+                    return None
+        except Exception as e:
+            print(e)
+            return None
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -196,16 +201,22 @@ class EventsCog(commands.Cog):
             filtered_words = config.get('filtered_words', [])
             ignored_words = config.get('ignored_words', [])
             blocked_users = config.get('blocked_users', [])
-            blocked_channels = config.get('blocked_channels', [])
             blocked_roles = config.get('blocked_roles', [])
+            blocked_channels = config.get('blocked_channels', [])
+            blocked_categories = config.get('blocked_categories', [])
             if str(message.author.id) in blocked_users:
                 return
             if str(message.channel.id) in blocked_channels:
                 return
+            if message.channel.category and str(message.channel.category.id) in blocked_categories:
+                return
             if any(role.id in map(int, blocked_roles) for role in message.author.roles):
                 return
+            message_content = message.content.lower()
             for word in filtered_words:
-                if word in message.content.lower().split() and word not in ignored_words:
+                if word in message_content:
+                    if any(ignored_word in message_content for ignored_word in ignored_words):
+                        continue
                     await message.delete()
                     break
         except Exception as e:
