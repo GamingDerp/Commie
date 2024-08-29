@@ -146,8 +146,8 @@ filteradd | Adds a word to a servers chat filter | `filteradd <word>` | Admin
 filterremove | Removes a word from a servers chat filter | `filterremove <word>` | Admin
 filterignore | Adds a word to a servers chat filter ignore list | `filterignore <word>` | Admin
 filterunignore | Removes a word from a servers chat filter ignore list | `filterunignore <word>` | Admin
-filterblock | Blocks a user, channel or role from a servers chat filter | `filterblock <target>` | Admin
-filterunblock | Unblocks a user, channel or role from a servers chat filter | `filterunblock <target>` | Admin
+filterblock | Blocks a user, channel or role from a servers chat filter | `filterblock <user> <role> <channel> <category_id>` | Admin
+filterunblock | Unblocks a user, channel or role from a servers chat filter | `filterunblock <user> <role> <channel> <category_id>` | Admin
 filterclear | Clears a servers chat filter list | `filterclear` | Admin
 testwelcome | Sends the welcome message for a server | `testwelcome` | Admin
 testleave | Sends the leave message for a server | `testleave` | Admin
