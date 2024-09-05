@@ -112,12 +112,10 @@ class StaffCog(commands.Cog):
                         "helper": row[2].split(',') if row[2] else []
                     }
                     role_hierarchy = ["helper", "moderator", "admin"]
-                    required_roles = roles[role_type]
-                    if required_roles:
-                        user_roles = [str(role.id) for role in user.roles]
-                        for higher_role in role_hierarchy[role_hierarchy.index(role_type):]:
-                            if any(role in user_roles for role in roles[higher_role]):
-                                return True
+                    user_roles = [str(role.id) for role in user.roles]
+                    for higher_role in role_hierarchy[role_hierarchy.index(role_type):]:
+                        if any(role in user_roles for role in roles[higher_role]):
+                            return True
         return False
 
     async def has_admin_role(self, user, guild_id):
@@ -134,124 +132,156 @@ class StaffCog(commands.Cog):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        await ctx.defer()
-        await ctx.channel.purge(limit=limit)
+        try:
+            await ctx.defer()
+            await ctx.channel.purge(limit=limit)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Ban a user")
     async def ban(self, ctx, member: discord.Member, *, reason=None):
         if not await self.has_moderator_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        e = discord.Embed(color=commie_color)
-        e.title = "<:BanHammer:1259651231127965716> Banned <:BanHammer:1259651231127965716>"
-        e.description = f"{member.mention} has been banned! \n\n📝 **Reason:** {reason}"
-        await ctx.channel.send(embed=e)
-        await member.ban(reason=reason)
+        try:
+            await ctx.defer()
+            await member.ban(reason=reason)
+            e = discord.Embed(color=commie_color)
+            e.title = "<:BanHammer:1281379396275404831> Banned <:BanHammer:1281379396275404831>"
+            e.description = f"{member.mention} has been banned! \n\n📝 **Reason:** {reason}"
+            await ctx.send(embed=e)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Unban a user by ID")
     async def unban(self, ctx, user_id: str):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        e = discord.Embed(color=commie_color)
-        e.title = "⚖️ Unbanned ⚖️"
-        user_id = int(user_id)
-        member = await self.bot.fetch_user(user_id)
-        e.description = f"{member.mention} has been unbanned!"
-        await ctx.channel.send(embed=e)
-        await ctx.guild.unban(member)
+        try:
+            await ctx.defer()
+            user_id = int(user_id)
+            member = await self.bot.fetch_user(user_id)
+            await ctx.guild.unban(member)
+            e = discord.Embed(color=commie_color)
+            e.title = "⚖️ Unbanned ⚖️"
+            e.description = f"{member.mention} has been unbanned!"
+            await ctx.send(embed=e)
+        except Exception as e:
+            print(e)
+
 
     @commands.hybrid_command(description="Kick a user")
     async def kick(self, ctx, member: discord.Member, *, reason=None):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        e = discord.Embed(color=commie_color)
-        e.title = "🧹 Kicked 🧹"
-        e.description = f"{member.mention} has been kicked! \n\n📝 **Reason:** {reason}"
-        await ctx.channel.send(embed=e)
-        await self.log_action(ctx, "🧹 User Kicked 🧹", member, reason)
-        await member.kick(reason=reason)
+        try:
+            await ctx.defer()
+            await member.kick(reason=reason)
+            e = discord.Embed(color=commie_color)
+            e.title = "🧹 Kicked 🧹"
+            e.description = f"{member.mention} has been kicked! \n\n📝 **Reason:** {reason}"
+            await ctx.send(embed=e)
+            await self.log_action(ctx, "🧹 User Kicked 🧹", member, reason)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Put a user in timeout | s, m, h, d")
     async def gulag(self, ctx, member: discord.Member, duration, *, reason=None):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        time_units = {"s": 1, "m": 60, "h": 3600, "d": 86400}
-        unit = duration[-1]
-        amount = int(duration[:-1])
-        seconds = amount * time_units[unit]
-        await member.timeout(timedelta(seconds=seconds), reason=reason)
-        e = discord.Embed(color=commie_color)
-        e.title = "🔐 Gulag 🔐"
-        e.description = f"{member.mention} has been put in the gulag! \n\n📝 **Reason:** {reason} \n⏳ **Duration:** {duration}"
-        await ctx.send(embed=e)
-        await self.log_action(ctx, "🔐 User Gulag'd 🔐", member, reason, duration)
+        try:
+            await ctx.defer()
+            time_units = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+            unit = duration[-1]
+            amount = int(duration[:-1])
+            seconds = amount * time_units[unit]
+            await member.timeout(timedelta(seconds=seconds), reason=reason)
+            e = discord.Embed(color=commie_color)
+            e.title = "🔐 Gulag 🔐"
+            e.description = f"{member.mention} has been put in the gulag! \n\n📝 **Reason:** {reason} \n⏳ **Duration:** {duration}"
+            await ctx.send(embed=e)
+            await self.log_action(ctx, "🔐 User Gulag'd 🔐", member, reason, duration)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Warn a user")
     async def warn(self, ctx, member: discord.Member, *, reason=None):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        if await self.add_warn(ctx.guild.id, member.id, reason):
-            e = discord.Embed(color=commie_color)
-            e.title = "⚠️ Warn ⚠️"
-            e.description = f"{member.mention} has been warned! \n\n📝 **Reason:** {reason}"
-            await ctx.send(embed=e)
-            await self.log_action(ctx, "⚠️ User Warned ⚠️", member, reason)
-        else:
-            await ctx.send("This user has already reached the maximum number of warnings (10).")
+        try:
+            if await self.add_warn(ctx.guild.id, member.id, reason):
+                e = discord.Embed(color=commie_color)
+                e.title = "⚠️ Warn ⚠️"
+                e.description = f"{member.mention} has been warned! \n\n📝 **Reason:** {reason}"
+                await ctx.send(embed=e)
+                await self.log_action(ctx, "⚠️ User Warned ⚠️", member, reason)
+            else:
+                await ctx.send("This user has already reached the maximum number of warnings (10).")
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="See a user's warns")
     async def warnlist(self, ctx, member: discord.Member):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        warns = await self.get_warns(ctx.guild.id, member.id)
-        if warns:
-            e = discord.Embed(color=commie_color)
-            e.title = f"📑 {member.name}'s Warn List 📑"
-            e.set_thumbnail(url=member.avatar.url)
-            user_info = f"🔍 __**User**__ \n{member.mention}\n"
-            warn_list_str = "\n\n".join([
-                f"__⚠️ **Warn {index}**__ \n> {warn} \n⏰ <t:{int(datetime.fromisoformat(timestamp).replace(tzinfo=timezone.utc).timestamp())}:F>"
-                for index, (warn, timestamp) in enumerate(warns, start=1)
-            ])
-            e.description = f"{user_info}\n{warn_list_str}"
-            await ctx.send(embed=e)
-        else:
-            await ctx.send(f"No warns found for **{member.name}**.", ephemeral=True)
+        try:
+            warns = await self.get_warns(ctx.guild.id, member.id)
+            if warns:
+                e = discord.Embed(color=commie_color)
+                e.title = f"📑 {member.name}'s Warn List 📑"
+                e.set_thumbnail(url=member.avatar.url)
+                user_info = f"🔍 __**User**__ \n{member.mention}\n"
+                warn_list_str = "\n\n".join([
+                    f"__⚠️ **Warn {index}**__ \n> {warn} \n⏰ <t:{int(datetime.fromisoformat(timestamp).replace(tzinfo=timezone.utc).timestamp())}:F>"
+                    for index, (warn, timestamp) in enumerate(warns, start=1)
+                ])
+                e.description = f"{user_info}\n{warn_list_str}"
+                await ctx.send(embed=e)
+            else:
+                await ctx.send(f"No warns found for **{member.name}**.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Delete a user's warns")
     async def delwarn(self, ctx, member: discord.Member, warn_number: int):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        warn_index = warn_number
-        warn_reason = await self.delete_warn(ctx.guild.id, member.id, warn_index)
-        if warn_reason:
-            e = discord.Embed(color=commie_color)
-            e.title = "⛔️ Warn Deleted ⛔️"
-            e.description = f"Warn **{warn_index}** for {member.mention} has been removed."
-            await ctx.send(embed=e, ephemeral=True)
-            await self.log_action(ctx, "⛔️ Warn Removed ⛔️", member, warn_reason)
-        else:
-            await ctx.send("Invalid warn number. Do `delwarn <user> <warn number>`.", ephemeral=True)
+        try:
+            warn_index = warn_number
+            warn_reason = await self.delete_warn(ctx.guild.id, member.id, warn_index)
+            if warn_reason:
+                e = discord.Embed(color=commie_color)
+                e.title = "⛔️ Warn Deleted ⛔️"
+                e.description = f"Warn **{warn_index}** for {member.mention} has been removed."
+                await ctx.send(embed=e, ephemeral=True)
+                await self.log_action(ctx, "⛔️ Warn Removed ⛔️", member, warn_reason)
+            else:
+                await ctx.send("Invalid warn number. Do `delwarn <user> <warn number>`.", ephemeral=True)
+        except Exception as e:
+            print(e)
 
     @commands.hybrid_command(description="Clear all warns for a user")
     async def clearwarns(self, ctx, member: discord.Member):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-        async with aiosqlite.connect("dbs/warnlist.db") as db:
-            await db.execute('DELETE FROM warns WHERE server_id = ? AND user_id = ?', (ctx.guild.id, member.id))
-            await db.commit()
-        e = discord.Embed(color=commie_color)
-        e.title = "♻️ Warns Cleared ♻️"
-        e.description = f"All warns for {member.mention} have been cleared."
-        await ctx.send(embed=e, ephemeral=True)
-        await self.log_action(ctx, "♻️ All Warns Cleared ♻️", member)
+        try:
+            async with aiosqlite.connect("dbs/warnlist.db") as db:
+                await db.execute('DELETE FROM warns WHERE server_id = ? AND user_id = ?', (ctx.guild.id, member.id))
+                await db.commit()
+            e = discord.Embed(color=commie_color)
+            e.title = "♻️ Warns Cleared ♻️"
+            e.description = f"All warns for {member.mention} have been cleared."
+            await ctx.send(embed=e, ephemeral=True)
+            await self.log_action(ctx, "♻️ All Warns Cleared ♻️", member)
+        except Exception as e:
+            print(e)
 
     async def log_action(self, ctx, action, member, reason=None, duration=None):
         try:
