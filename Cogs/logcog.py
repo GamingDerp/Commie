@@ -52,8 +52,8 @@ class LogCog(commands.Cog):
             e.set_author(name="🗑️ Message Deleted")
             if message.author and message.author.avatar:
                 e.set_thumbnail(url=f"{message.author.avatar.url}")
-            author_type = "**bot**" if message.author.bot else "**user**"
-            e.description = f"A message by a {author_type}, {message.author.mention}, was deleted \n<:ChainReply:1259287285845725214> In <#{message.channel.id}> \n<:Reply:1259287286814740541> **ID:** {message.id}"
+            user_type = "**bot**" if message.author.bot else "**user**"
+            e.description = f"A message by a {user_type}, {message.author.mention}, was deleted \n<:Chain_Reply:1123773275089162421>  In <#{message.channel.id}> \n<:Reply:1123773242327441468> **Message ID:** {message.id}"
             if message.content:
                 e.add_field(name="Content", value=f"> {message.content}", inline=False)
             if message.attachments:
@@ -86,8 +86,8 @@ class LogCog(commands.Cog):
             e.set_author(name="📝 Message Edited")
             if before.author and before.author.avatar:
                 e.set_thumbnail(url=f"{before.author.avatar.url}")
-            author_type = "**bot**" if before.author.bot else "**user**"
-            e.description = f"A {author_type}, {before.author.mention}, edited their message \n<:ChainReply:1259287285845725214> In <#{before.channel.id}> \n<:ChainReply:1259287285845725214> **ID:** {before.id} \n<:Reply:1259287286814740541> [**Jump to Message**]({after.jump_url})"
+            user_type = "**bot**" if before.author.bot else "**user**"
+            e.description = f"A {user_type}, {before.author.mention}, edited their message \n<:Chain_Reply:1123773275089162421> In <#{before.channel.id}> \n<:Chain_Reply:1123773275089162421> **User ID:** {before.author.id} \n<:Chain_Reply:1123773275089162421> **Message ID:** {before.id} \n<:Reply:1123773242327441468> [**Jump to Message**]({after.jump_url})"
             e.add_field(name="__Before__", value=f"> {before.content if before.content else 'No content'}")
             e.add_field(name="__After__", value=f"> {after.content if after.content else 'No content'}", inline=False)
             e.timestamp = datetime.utcnow()
@@ -103,7 +103,9 @@ class LogCog(commands.Cog):
         e.set_author(name="📈 Member Joined")
         if member.avatar:
             e.set_thumbnail(url=member.avatar.url)
-        e.add_field(name="__Member__", value=f"> {member.mention}")
+        user_type = "**bot**" if member.bot else "**user**"
+        creation_timestamp = int(member.created_at.timestamp())
+        e.description = f"A {user_type}, {member.name} ({member.mention}) joined **{member.guild.name}** \n<:Chain_Reply:1123773275089162421> **User ID:** {member.id} \n<:Reply:1123773242327441468> **Created:** <t:{creation_timestamp}:f>"
         e.timestamp = datetime.utcnow()
         await self.log_event(member.guild, e)
 
@@ -113,7 +115,10 @@ class LogCog(commands.Cog):
         e.set_author(name="📉 Member Left")
         if member.avatar:
             e.set_thumbnail(url=member.avatar.url)
-        e.add_field(name="__Member__", value=f"> {member.mention}")
+        user_type = "**bot**" if member.bot else "**user**"
+        creation_timestamp = int(member.created_at.timestamp())
+        join_timestamp = int(member.joined_at.timestamp())
+        e.description = f"A {user_type}, {member.name} ({member.mention}) left **{member.guild.name}** \n<:Chain_Reply:1123773275089162421> **User ID:** {member.id} \n<:Chain_Reply:1123773275089162421> **Created:** <t:{creation_timestamp}:f> \n<:Reply:1123773242327441468> **Joined:** <t:{join_timestamp}:f>"
         e.timestamp = datetime.utcnow()
         await self.log_event(member.guild, e)
 
@@ -127,9 +132,10 @@ class LogCog(commands.Cog):
             e.set_author(name="<:BanHammer:1281379396275404831> Member Banned")
             if member.avatar:
                 e.set_thumbnail(url=member.avatar.url)
-            e.add_field(name="__Member__", value=f"> {member.mention}")
-            e.add_field(name="__Ban Reason__", value=f"> {logs.reason}", inline=False)
-            e.add_field(name="__Staff Member__", value=f"> {logs.user.mention}", inline=False)
+            user_type = "**bot**" if member.bot else "**user**"
+            creation_timestamp = int(member.created_at.timestamp())
+            join_timestamp = int(member.joined_at.timestamp())
+            e.description = f"A {user_type}, {member.name} ({member.mention}) was banned from **{guild.name}** \n<:Chain_Reply:1123773275089162421> **User ID:** {member.id} \n<:Chain_Reply:1123773275089162421> **Created:** <t:{creation_timestamp}:f> \n<:Chain_Reply:1123773275089162421> **Joined:** <t:{join_timestamp}:f> \n<:Chain_Reply:1123773275089162421> **Ban Reason** {logs.reason } \n<:Chain_Reply:1123773275089162421> **Staff:** {logs.user.mention} \n<:Reply:1123773242327441468> **Staff ID:** {logs.user.id}"
             e.timestamp = datetime.utcnow()
             await self.log_event(guild, e)
 
@@ -139,37 +145,36 @@ class LogCog(commands.Cog):
         e.set_author(name="⚖️ Member Unbanned")
         if member.avatar:
             e.set_thumbnail(url=member.avatar.url)
-        e.add_field(name="__Member__", value=f"> {member.mention}")
+        user_type = "**bot**" if member.bot else "**user**"
+        creation_timestamp = int(member.created_at.timestamp())
+        e.description = f"A {user_type}, {member.name} ({member.mention}) was unbanned from **{guild.name}** \n<:Chain_Reply:1123773275089162421> **User ID:** {member.id} \n<:Reply:1123773242327441468> **Created:** <t:{creation_timestamp}:f>"
         e.timestamp = datetime.utcnow()
         await self.log_event(guild, e)
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
         e = None
+        user_type = "**bot**" if before.bot else "**user**"
         if len(before.roles) > len(after.roles):
             droles = next(droles for droles in before.roles if droles not in after.roles)
             e = discord.Embed(color=0xff0000)
-            e.set_author(name="🧮 Role Update")
+            e.set_author(name="🧮 Role Removed")
             if before.avatar:
                 e.set_thumbnail(url=before.avatar.url)
-            e.add_field(name="__Member__", value=f"> {before.mention}")
-            e.add_field(name="__Role__", value=f"> ❌ {droles}", inline=False)
+            e.description = f"A {user_type}, {before.name} ({before.mention}) had a role removed \n<:Chain_Reply:1123773275089162421> **User ID:** {before.id} \n<:Reply:1123773242327441468> **Role:** {droles.mention} ({droles.id})"
         elif len(before.roles) < len(after.roles):
             aroles = next(aroles for aroles in after.roles if aroles not in before.roles)
             e = discord.Embed(color=0x00ff06)
-            e.set_author(name="🧮 Role Update")
+            e.set_author(name="🧮 Role Added")
             if before.avatar:
                 e.set_thumbnail(url=before.avatar.url)
-            e.add_field(name="__Member__", value=f"> {before.mention}")
-            e.add_field(name="__Role__", value=f"> ✅ {aroles}", inline=False)
+            e.description = f"A {user_type}, {before.name} ({before.mention}) had a role added \n<:Chain_Reply:1123773275089162421> **User ID:** {before.id} \n<:Reply:1123773242327441468> **Role:** {aroles.mention} ({aroles.id})"
         if before.display_name != after.display_name:
             e = discord.Embed(color=0xffc200)
             e.set_author(name="🧾 Nickname Update")
             if before.avatar:
                 e.set_thumbnail(url=before.avatar.url)
-            e.add_field(name="__Member__", value=f"> {before.mention}")
-            e.add_field(name="__Before__", value=f"> {before.display_name}", inline=False)
-            e.add_field(name="__After__", value=f"> {after.display_name}", inline=False)
+            e.description = f"A {user_type}, {before.name} ({before.mention}) had their nickname updated \n<:Chain_Reply:1123773275089162421> **User ID:** {before.id} \n<:Chain_Reply:1123773275089162421> **Before:** {before.display_name} \n<:Reply:1123773242327441468> **After:** {after.display_name}"
         if e:
             e.timestamp = datetime.utcnow()
             await self.log_event(before.guild, e)
@@ -257,6 +262,165 @@ class LogCog(commands.Cog):
         if e:
             e.timestamp = datetime.utcnow()
             await self.log_event(before.guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_update(self, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🏛️ Guild Updated")
+        e.add_field(name="__Before__", value=f"> {before.name}")
+        e.add_field(name="__After__", value=f"> {after.name}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(after, e)
+
+    @commands.Cog.listener()
+    async def on_invite_create(self, invite):
+        e = discord.Embed(color=0x00ff06)
+        e.set_author(name="🔗 Invite Created")
+        e.add_field(name="__Invite Link__", value=f"> {invite.url}")
+        e.add_field(name="__Channel__", value=f"> {invite.channel.mention}", inline=False)
+        e.add_field(name="__Inviter__", value=f"> {invite.inviter.mention}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(invite.guild, e)
+
+    @commands.Cog.listener()
+    async def on_invite_delete(self, invite):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🗑️ Invite Deleted")
+        e.add_field(name="__Invite Link__", value=f"> {invite.url}")
+        e.add_field(name="__Channel__", value=f"> {invite.channel.mention}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(invite.guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_emojis_update(self, guild, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="😄 Emojis Updated")
+        e.add_field(name="__Before__", value=f"> {len(before)} emojis")
+        e.add_field(name="__After__", value=f"> {len(after)} emojis", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_stickers_update(self, guild, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🖼️ Stickers Updated")
+        e.add_field(name="__Before__", value=f"> {len(before)} stickers")
+        e.add_field(name="__After__", value=f"> {len(after)} stickers", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(guild, e)
+
+    @commands.Cog.listener()
+    async def on_webhooks_update(self, channel):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🕸️ Webhooks Updated")
+        e.add_field(name="__Channel__", value=f"> {channel.mention}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(channel.guild, e)
+
+    @commands.Cog.listener()
+    async def on_bulk_message_delete(self, messages):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🧹 Bulk Messages Deleted")
+        e.add_field(name="__Channel__", value=f"> {messages[0].channel.mention}")
+        e.add_field(name="__Number of Messages__", value=f"> {len(messages)}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(messages[0].guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_scheduled_event_create(self, event):
+        e = discord.Embed(color=0x00ff06)
+        e.set_author(name="🗓️ Event Created")
+        e.add_field(name="__Event Name__", value=f"> {event.name}")
+        e.add_field(name="__Event Description__", value=f"> {event.description or 'No description'}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(event.guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_scheduled_event_delete(self, event):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🗑️ Event Deleted")
+        e.add_field(name="__Event Name__", value=f"> {event.name}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(event.guild, e)
+
+    @commands.Cog.listener()
+    async def on_guild_scheduled_event_update(self, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🛠️ Event Updated")
+        e.add_field(name="__Before__", value=f"> {before.name}")
+        e.add_field(name="__After__", value=f"> {after.name}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(after.guild, e)
+
+    @commands.Cog.listener()
+    async def on_stage_instance_create(self, instance):
+        e = discord.Embed(color=0x00ff06)
+        e.set_author(name="🎤 Stage Created")
+        e.add_field(name="__Channel__", value=f"> {instance.channel.mention}")
+        e.add_field(name="__Topic__", value=f"> {instance.topic}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(instance.guild, e)
+
+    @commands.Cog.listener()
+    async def on_stage_instance_delete(self, instance):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🗑️ Stage Deleted")
+        e.add_field(name="__Channel__", value=f"> {instance.channel.mention}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(instance.guild, e)
+
+    @commands.Cog.listener()
+    async def on_stage_instance_update(self, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🛠️ Stage Updated")
+        e.add_field(name="__Before__", value=f"> {before.topic}")
+        e.add_field(name="__After__", value=f"> {after.topic}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(after.guild, e)
+
+    @commands.Cog.listener()
+    async def on_thread_create(self, thread):
+        e = discord.Embed(color=0x00ff06)
+        e.set_author(name="🧵 Thread Created")
+        e.add_field(name="__Thread Name__", value=f"> {thread.name}")
+        e.add_field(name="__Channel__", value=f"> {thread.parent.mention}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(thread.guild, e)
+
+    @commands.Cog.listener()
+    async def on_thread_delete(self, thread):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🗑️ Thread Deleted")
+        e.add_field(name="__Thread Name__", value=f"> {thread.name}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(thread.guild, e)
+
+    @commands.Cog.listener()
+    async def on_thread_update(self, before, after):
+        e = discord.Embed(color=0xffc200)
+        e.set_author(name="🛠️ Thread Updated")
+        e.add_field(name="__Before__", value=f"> {before.name}")
+        e.add_field(name="__After__", value=f"> {after.name}", inline=False)
+        e.timestamp = datetime.utcnow()
+        await self.log_event(after.guild, e)
+
+    @commands.Cog.listener()
+    async def on_thread_member_join(self, member, thread):
+        e = discord.Embed(color=0x00ff06)
+        e.set_author(name="👥 Joined Thread")
+        e.add_field(name="__User__", value=f"> {member.mention}")
+        e.add_field(name="__Thread__", value=f"> {thread.name}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(thread.guild, e)
+
+    @commands.Cog.listener()
+    async def on_thread_member_remove(self, member, thread):
+        e = discord.Embed(color=0xff0000)
+        e.set_author(name="🚪 Left Thread")
+        e.add_field(name="__User__", value=f"> {member.mention}")
+        e.add_field(name="__Thread__", value=f"> {thread.name}")
+        e.timestamp = datetime.utcnow()
+        await self.log_event(thread.guild, e)
 
 async def setup(bot):
     await bot.add_cog(LogCog(bot))
