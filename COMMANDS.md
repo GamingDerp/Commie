@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `112`
+**Command Count:** `114`
 
 ## ⚖️ Roles
 
@@ -59,6 +59,7 @@ punt | Punts another user | `punt @user` | Member
 Command | Description | Usage | Role Required
 --- | --- | --- | ---
 whois | Sends information about a user's account | `whois @user` | Member
+avatar | Sends a users profile picture | `avatar @user` | Member
 snipe | Shows a recently deleted message and who sent it | `snipe` | Member
 remind | Sets a reminder for a user about a task | `remind <number><abbreviated time length> <task>` | Member
 remindlist | Shows a users reminder list | `remindlist` | Member
@@ -103,6 +104,7 @@ ban | Bans a user from the server | `ban @user` | Moderator
 unban | Unbans a user from the server | `unban @user` | Admin
 kick | Kicks a user from the server | `kick @user` | Helper
 gulag | Puts a user in "timeout" | `gulag @user <number><abbreviated time length> <reason>` | Helper
+ungulag | Removes a user from "timeout" `ungulag @user <reason>` | Helper
 warn | Warns a user | `warn @user <reason>` | Helper
 warnlist | Checks the warns of a user | `warnlist @user` | Helper
 delwarn | Deletes a specified warn from a users warn list | `delwarn @user <warn number>` | Admin
