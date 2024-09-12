@@ -246,11 +246,24 @@ class RoleCog(commands.Cog):
             e = discord.Embed(color=commie_color)
             e.set_author(name="Commie Self Role Menu Color Choices", icon_url=commie_logo)
             e.set_thumbnail(url=commie_logo)
-            e.description = "# 🛍️ Available Color Choices 🛍️ \n> 🔴 Red \n> 🟠 Orange \n> 🟡 Yellow \n> 🟢 Green \n> 🔵 Blue \n> 🟣 Purple \n> 🌸 Pink \n> 🟤 Brown \n> ⚫️ Black \n> 🔘 Grey \n> ⚪️ White\n\n### 👾 Custom Colors 👾 \n> To set a custom color use a hex code (**Ex:** `#ff5733`)"
-            color_embed_msg = await ctx.send(embed=e, ephemeral=True)
-            color_msg = await ctx.send("What color should the menu embed be? If custom, send the hex code! **Ex:** `#ff0000`")
+            e.description = (
+                "# 🛍️ Available Color Choices 🛍️\n"
+                "> 🔴 Red\n"
+                "> 🟠 Orange\n"
+                "> 🟡 Yellow\n"
+                "> 🟢 Green\n"
+                "> 🔵 Blue\n"
+                "> 🟣 Purple\n"
+                "> 🌸 Pink\n"
+                "> 🟤 Brown\n"
+                "> ⚫️ Black\n"
+                "> 🔘 Grey\n"
+                "> ⚪️ White\n\n"
+                "### 👾 Custom Colors 👾\n"
+                "> To set a custom color use a hex code (**Ex:** `#ff5733`)"
+            )
+            color_embed = await ctx.send(embed=e)
             msg = await self.bot.wait_for('message', check=check, timeout=60)
-            command_msg = ctx.message
             color = msg.content.strip()
             if color.startswith('#') and len(color) == 7:
                 color_value = int(color[1:], 16)
@@ -259,20 +272,21 @@ class RoleCog(commands.Cog):
             else:
                 color_value = commie_color
             await msg.delete()
-            await color_msg.delete()
-            await color_embed_msg.delete()
-            await command_msg.delete()
             embed = discord.Embed(title="Placeholder", description="Placeholder", color=color_value)
             message = await ctx.send(embed=embed)
+            await color_embed.delete()
             prompt_msg = await ctx.send("What should be the **title** of your menu?")
             msg = await self.bot.wait_for('message', check=check, timeout=60)
             embed.title = msg.content.strip()
             await message.edit(embed=embed)
             await msg.delete()
             await prompt_msg.delete()
-            prompt_msg = await ctx.send(f"What should be the **description** of the **{embed.title}** menu?")
+            prompt_msg = await ctx.send(f"What should be the **description** of the **{embed.title}** menu? If none, say **skip**!")
             msg = await self.bot.wait_for('message', check=check, timeout=60)
-            embed.description = msg.content.strip()
+            if msg.content.lower() == "skip":
+                embed.description = ""
+            else:
+                embed.description = msg.content.strip()
             await message.edit(embed=embed)
             await msg.delete()
             await prompt_msg.delete()
@@ -304,7 +318,7 @@ class RoleCog(commands.Cog):
                     await ctx.send("Invalid format. Please use the `:emoji: @role` format and ensure the emoji is valid.", ephemeral=True, delete_after=10)
                 await msg.delete()
             await prompt_msg.delete()
-            prompt_msg = await ctx.send("Should the menu use **reactions**, **buttons** or a **dropdown**?")
+            prompt_msg = await ctx.send("Should the menu use **reactions**, **buttons**, or a **dropdown**?")
             msg = await self.bot.wait_for('message', check=check, timeout=60)
             selection_format = msg.content.strip().lower()
             await msg.delete()
