@@ -155,6 +155,7 @@ class EventsCog(commands.Cog):
                 "> ⚖️ `/togglesuggest`\n"
                 "> ⚖️ `/toggleboost`\n"
                 "> ⚖️ `/toggleautorole`\n"
+                "> ⚖️ `/togglefilter`\n"
                 "### Configuration Commands\n"
                 "> 🔔 **Set the bot prefix:** `/setprefix [prefix]` (Default is `!`)\n"
                 "> 🔰 **Set staff roles:** `/setstaff`\n"
