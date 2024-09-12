@@ -204,8 +204,28 @@ class StaffCog(commands.Cog):
             e.description = f"{member.mention} has been put in the gulag! \n\n📝 **Reason:** {reason} \n⏳ **Duration:** {duration}"
             await ctx.send(embed=e)
             await self.log_action(ctx, "🔐 User Gulag'd 🔐", member, reason, duration)
+        except discord.Forbidden:
+            await ctx.send("They're above me in rank! No can do, comrade.", ephemeral=True)
         except Exception as e:
-            print(e)
+            print(f"Error in gulag command: {e}")
+
+    @commands.hybrid_command(description="Remove a user from timeout")
+    async def ungulag(self, ctx, member: discord.Member, *, reason=None):
+        if not await self.has_helper_role(ctx.author, ctx.guild.id):
+            await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
+            return
+        try:
+            await ctx.defer()
+            await member.remove_timeout(reason=reason)
+            e = discord.Embed(color=commie_color)
+            e.title = "🔓 Ungulag 🔓"
+            e.description = f"{member.mention} has been released from the gulag! \n\n📝 **Reason:** {reason}"
+            await ctx.send(embed=e)
+            await self.log_action(ctx, "🔓 User Ungulag'd 🔓", member, reason)
+        except discord.Forbidden:
+            await ctx.send("They're above me in rank! No can do, comrade.", ephemeral=True)
+        except Exception as e:
+            print(f"Error in ungulag command: {e}")
 
     @commands.hybrid_command(description="Warn a user")
     async def warn(self, ctx, member: discord.Member, *, reason=None):
