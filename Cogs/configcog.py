@@ -6,6 +6,7 @@ import asyncio
 commie_logo = "https://media.discordapp.net/attachments/1257979868784758854/1258026914816331807/CommieLogo.png?ex=66868c5d&is=66853add&hm=36c6a57e62eca6ec2954f76efc6d20add7ea2ab786380aab1f1994e55513ef05&=&format=webp&quality=lossless"
 commie_color = 0xd40001
 boost_color = 0xff73fa
+owner_id = 532706491438727169
 
 class ConfigCog(commands.Cog):
     def __init__(self, bot):
@@ -116,6 +117,22 @@ class ConfigCog(commands.Cog):
         e.title = f"{ctx.guild.name} Staff Roles"
         e.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
         return await ctx.send(f"Mention (**@**) your **{role_type}** role(s)! Say '**done**' when all **{role_type}** role(s) have been added! Say '**skip**' to move to the next role without adding **{role_type}** role(s)!", embed=e)
+
+    @commands.command()
+    async def updatedb(self, ctx):
+        if ctx.author.id == owner_id:
+            try:
+                async with aiosqlite.connect("dbs/configs.db") as db:
+                    await db.execute('''
+                        ALTER TABLE server_configs
+                        ADD COLUMN blocked_categories TEXT DEFAULT ''
+                    ''')
+                    await db.commit()
+                await ctx.send("Database schema updated successfully!", ephemeral=True)
+            except Exception as e:
+                await ctx.send(f"An error occurred while updating the database: {e}", ephemeral=True)
+        else:
+            return
 
     @commands.hybrid_group(name="toggle", description="Toggle features for the server")
     async def toggle_group(self, ctx):
