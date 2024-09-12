@@ -222,6 +222,17 @@ class MiscCog(commands.Cog):
             time_str += f"{int(minutes)}m "
         time_str += f"{int(seconds)}s"
         return time_str
+    
+    @commands.hybrid_command(description="Fetch a user's avatar")
+    async def avatar(self, ctx, member: discord.Member = None):
+        member = member or ctx.author
+        try:
+            e = discord.Embed(color=commie_color)
+            e.set_author(name=f"{member.display_name}'s Avatar", icon_url=member.avatar.url)
+            e.set_image(url=member.avatar.url)
+            await ctx.send(embed=e)
+        except Exception as e:
+            print(f"Error in avatar command: {e}")
 
     @commands.hybrid_command(description="Sends the most recent deleted or edited message")
     async def snipe(self, ctx):
