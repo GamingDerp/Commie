@@ -42,7 +42,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
+    value=f"> `Whois`, `Avatar`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -50,7 +50,7 @@ se.set_author(name="Commie Commands", icon_url=commie_logo)
 se.set_thumbnail(url=commie_logo)
 se.add_field(
     name="🔰 __Staff Commands__",
-    value=f"> `Purge`, `Ban`, `Unban`, `Kick`, `Gulag`, `Warn`, `WarnList`, `DelWarn`, `ClearWarns`, `HighlightAdd`, `HighlightRemove`, `HighlightClear`, `HighlightBlock`, `HighlightUnblock`, `HighlightDefaults`, `HighlightIgnore`, `HighlightUnignore`, `HighlightHelp`",
+    value=f"> `Purge`, `Ban`, `Unban`, `Kick`, `Gulag`, `Ungulag`, `Warn`, `WarnList`, `DelWarn`, `ClearWarns`, `HighlightAdd`, `HighlightRemove`, `HighlightClear`, `HighlightBlock`, `HighlightUnblock`, `HighlightDefaults`, `HighlightIgnore`, `HighlightUnignore`, `HighlightHelp`",
 )
 
 ce = discord.Embed(color=commie_color)
@@ -176,7 +176,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [112]"
+                value=f"> **Commands:** [114]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
@@ -230,6 +230,7 @@ class GeneralCog(commands.Cog):
                 "> ⚖️ `/togglesuggest`\n"
                 "> ⚖️ `/toggleboost`\n"
                 "> ⚖️ `/toggleautorole`\n"
+                "> ⚖️ `/togglefilter`\n"
                 "### Configuration Commands\n"
                 "> 🔔 **Set the bot prefix:** `/setprefix [prefix]` (Default is `!`)\n"
                 "> 🔰 **Set staff roles:** `/setstaff`\n"
