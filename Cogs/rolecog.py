@@ -464,6 +464,40 @@ class RoleCog(commands.Cog):
                 return
             def check(m):
                 return m.author == interaction.user and m.channel == interaction.channel
+            async def check_deleted_roles(menu):
+                deleted_roles = []
+                guild = interaction.guild
+                for role_id in list(menu['roles'].keys()):
+                    role = guild.get_role(int(role_id))
+                    if role is None:
+                        deleted_roles.append(role_id)
+                return deleted_roles
+            async def remove_deleted_roles(deleted_roles, menu):
+                for role_id in deleted_roles:
+                    del menu['roles'][role_id]
+                    if menu['selection_format'] == 'reactions':
+                        message = await interaction.channel.fetch_message(menu['message_id'])
+                        for reaction in message.reactions:
+                            if str(reaction.emoji) == menu['roles'].get(role_id):
+                                await message.clear_reaction(reaction.emoji)
+                    elif menu['selection_format'] == 'buttons':
+                        pass
+                    elif menu['selection_format'] == 'dropdown':
+                        pass
+                await self.save_menu(menu_id, menu['message_id'], menu['guild_id'], menu['selection_format'], menu['title'], menu['description'], menu['color'], menu['include_role_name'], menu['roles'])
+            while True:
+                deleted_roles = await check_deleted_roles(menu)
+                if not deleted_roles:
+                    break
+                await interaction.response.send_message("There is a **deleted role** in the menu, do you want to remove it? Say **yes** or **no**!")
+                msg = await self.bot.wait_for('message', check=check, timeout=60)
+                if msg.content.strip().lower() == "yes":
+                    await remove_deleted_roles(deleted_roles, menu)
+                    await interaction.followup.send(f"Deleted roles have been removed from **{menu['title']}**. Use `/menu send <menu_id>` to resend it!", ephemeral=True)
+                else:
+                    await interaction.followup.send("Deleted roles will not be removed. Continuing.", ephemeral=True)
+                    break
+                await msg.delete()
             if action == "color":
                 await interaction.response.send_message("What will be the new menu color? Or send the hex code! **Ex:** `#ff0000`", ephemeral=True)
                 msg = await self.bot.wait_for('message', check=check, timeout=60)
@@ -593,16 +627,17 @@ class RoleCog(commands.Cog):
             if not menu or menu['guild_id'] != ctx.guild.id:
                 await ctx.send("Invalid **Menu ID** or **Message ID**, or this menu does not belong to this guild.", ephemeral=True)
                 return
+            description = menu["description"] if menu["description"] else "None"
             roles_list = [f"<@&{role_id}>" for role_id in menu["roles"].keys()]
-            roles_info = "> " + ", ".join(roles_list)
+            roles_info = "> " + ", ".join(roles_list) if roles_list else "> No roles assigned"
             e = discord.Embed(title="🔍 Menu Information 🔍", color=menu["color"])
             e.set_thumbnail(url=ctx.guild.icon.url)
             e.add_field(name="📌 Menu ID", value=f"> {identifier}", inline=True)
             e.add_field(name="📌 Message ID", value=f"{menu['message_id']}", inline=True)
             e.add_field(name="📰 Title", value=f"> {menu['title']}", inline=False)
-            e.add_field(name="📑 Description", value=f"> {menu['description']}", inline=False)
+            e.add_field(name="📑 Description", value=f"> {description}", inline=False)
             e.add_field(name="📮 Format", value=f"> {menu['selection_format']}", inline=False)
-            e.add_field(name="🔰 Roles", value=roles_info if roles_info else "> No roles assigned", inline=False)
+            e.add_field(name="🔰 Roles", value=roles_info, inline=False)
             await ctx.send(embed=e, ephemeral=True)
         except Exception as e:
             print(e)
@@ -614,7 +649,7 @@ class RoleCog(commands.Cog):
                 await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
                 return
             e = discord.Embed(title="⚙️ Menu Help ⚙️", color=commie_color)
-            e.description="Here are the available public commands for managing self role menus. \n### 📌 Menu Commands 📌\n> ⚙️ **Menu Help** **|** `menu help` **|** Shows the Menu Help Menu\n> 📌 **Menu Info** **|** `menu info [identifier]` **|** Shows information about a self role menu [`identifier` can be either the **Menu ID** or the **Message ID**]\n> 🧮 **Menu Create** **|** `menu create` **|** Creates a self role menu\n> 🛠 **Menu Edit** **|** `menu edit [menu_id]` **|** Edits a self role menu\n> 📇 **Menu Send** **|** `menu send [menu_id]` **|** Sends a self role menu"
+            e.description="Here are the available public commands for managing self role menus. \n### 📌 Menu Commands 📌\n> ⚙️ `/menu help` **|** Shows the Menu Help Menu\n> 📌 `/menu info [identifier]` **|** Shows information about a self role menu [`identifier` can be either the **Menu ID** or the **Message ID**]\n> 🧮 `/menu create` **|** Creates a self role menu\n> 🛠 `/menu edit [menu_id]` **|** Edits a self role menu\n> 📇 `/menu send [menu_id]` **|** Sends a self role menu"
             await ctx.send(embed=e, ephemeral=True)
         except Exception as e:
             print(e)
