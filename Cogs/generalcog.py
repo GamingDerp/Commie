@@ -18,7 +18,7 @@ ge.set_author(name="Commie Commands", icon_url=commie_logo)
 ge.set_thumbnail(url=commie_logo)
 ge.add_field(
     name="📌 __General Commands__",
-    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Ping`, `Suggest`, `Poll`",
+    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Ping`, `Suggest`, `Poll`, `Review`",
 )
 
 fe = discord.Embed(color=commie_color)
@@ -42,7 +42,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Avatar`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Card`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `Todoadd`, `Tododel`, `Todolist`, `Todoclear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
+    value=f"> `Whois`, `Avatar`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `CardShow`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `TodoAdd`, `TodoDel`, `TodoList`, `TodoClear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -64,12 +64,12 @@ ce.add_field(
 class Dropdown(discord.ui.Select):
     def __init__(self):
         options = [
-            discord.SelectOption(label="General Commands", description="Help, Info, Setup, About, Vote +4 More", emoji="📌"),
+            discord.SelectOption(label="General Commands", description="Help, Info, Setup, About, Vote +5 More", emoji="📌"),
             discord.SelectOption(label="Fun Commands", description="Coinflip, Ask, Reverse, Say, Lovetest +1 More", emoji="🎉"),
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
-            discord.SelectOption(label="Misc Commands", description="Whois, Snipe Remind, Afk, ClimateClock +16 More", emoji="🧮"),
-            discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +13 More", emoji="🔰"),
-            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +15 More", emoji="⚙️"),
+            discord.SelectOption(label="Misc Commands", description="Whois, Snipe, Remind, Afk, ClimateClock +26 More", emoji="🧮"),
+            discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +14 More", emoji="🔰"),
+            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +26 More", emoji="⚙️"),
         ]
         super().__init__(min_values=1, max_values=1, options=options)
 
@@ -176,7 +176,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [114]"
+                value=f"> **Commands:** [115]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
@@ -329,6 +329,30 @@ class GeneralCog(commands.Cog):
         msg = await ctx.send(embed=e)
         for i in range(len(options)):
             await msg.add_reaction(emoji_list[i])
+
+    @commands.hybrid_command(description="Submit a review of Commie!")
+    async def review(self, ctx, stars: int, *, review: str):
+        try:
+            if stars < 1 or stars > 5:
+                await ctx.send("Please provide a valid star rating between 1 and 5!", ephemeral=True)
+                return
+            star_display = f"{stars}/5"
+            review_channel_id = 1261507083896094750
+            review_channel = self.bot.get_channel(review_channel_id)
+            if review_channel is None:
+                await ctx.send("Review channel not found!", ephemeral=True)
+                return
+            e = discord.Embed(color=commie_color)
+            e.set_author(name=ctx.author.name, icon_url=ctx.author.avatar.url)
+            e.set_thumbnail(url=ctx.author.avatar.url)
+            e.add_field(name="🌟 Star Rating", value=f"{star_display}", inline=False)
+            e.add_field(name="📝 Review", value=f"> {review}", inline=False)
+            e.set_footer(text=f"Review from {ctx.guild.name}")
+            e.timestamp = datetime.utcnow()
+            await review_channel.send(embed=e)
+            await ctx.send("Thank you for the review! <a:CommiePet:1276110509405372509>", ephemeral=True)
+        except Exception as e:
+            print(f"Error in review command: {e}")
 
 async def setup(bot):
     await bot.add_cog(GeneralCog(bot))
