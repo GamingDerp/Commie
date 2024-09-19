@@ -216,7 +216,7 @@ class StaffCog(commands.Cog):
             return
         try:
             await ctx.defer()
-            await member.remove_timeout(reason=reason)
+            await member.timeout(None, reason=reason)
             e = discord.Embed(color=commie_color)
             e.title = "🔓 Ungulag 🔓"
             e.description = f"{member.mention} has been released from the gulag! \n\n📝 **Reason:** {reason}"
