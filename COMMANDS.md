@@ -5,7 +5,7 @@ The "role required" in the tables below shows the lowest role required to ***use
 
 By default commands are slash commands, and use `!`. You can customize this using `/setprefix`.
 
-**Command Count:** `114`
+**Command Count:** `115`
 
 ## ⚖️ Roles
 
@@ -28,6 +28,7 @@ vote | Sends **Commie's** voting links | `vote` | Member
 ping | Shows a users ping | `ping` | Member
 suggest | Lets users make a suggestion for the server | `suggest <suggestion>` | Member
 poll | Creates a poll | `poll <question> <option1> <option2> <option3> <option4> <option5>` | Moderator
+review | Sends a review of Commie into the "reviews" channel in Commie Support | `review <stars> <review>` | Member
 
 ## 🎉 Fun
 Command | Description | Usage | Role Required
