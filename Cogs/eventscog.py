@@ -48,6 +48,11 @@ class EventsCog(commands.Cog):
                 star_count = config.get("star_count")
                 if not starboard_enabled or not starboard_channel_id or not star_count:
                     return
+                async with aiosqlite.connect("dbs/menus.db") as db:
+                    async with db.execute("SELECT menu_id FROM menus WHERE message_id = ?", (reaction.message.id,)) as cursor:
+                        result = await cursor.fetchone()
+                if result:
+                    return
                 if reaction.count >= star_count and reaction.message.id not in self.processed_messages:
                     starboard_channel = self.bot.get_channel(starboard_channel_id)
                     if starboard_channel:
@@ -55,7 +60,7 @@ class EventsCog(commands.Cog):
                         e.set_author(name=reaction.message.author.display_name, icon_url=reaction.message.author.avatar.url)
                         e.description = reaction.message.content
                         if reaction.message.attachments:
-                            e.set_image(url=reaction.message.attachments[0].url)   
+                            e.set_image(url=reaction.message.attachments[0].url)
                         e.add_field(name="**Posted In**", value=reaction.message.channel.mention)
                         jump_url = reaction.message.jump_url
                         e.add_field(name="**Jump URL**", value=f"[Message Link]({jump_url})")
