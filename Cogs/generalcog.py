@@ -18,7 +18,7 @@ ge.set_author(name="Commie Commands", icon_url=commie_logo)
 ge.set_thumbnail(url=commie_logo)
 ge.add_field(
     name="📌 __General Commands__",
-    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Ping`, `Suggest`, `Poll`, `Review`",
+    value=f"> `Help`, `Info`, `About`, `Setup`, `Donate`, `Vote`, `Ping`, `Suggest`, `Poll`, `Review`, `Invite`",
 )
 
 fe = discord.Embed(color=commie_color)
@@ -176,7 +176,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [115]"
+                value=f"> **Commands:** [116]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
@@ -351,6 +351,18 @@ class GeneralCog(commands.Cog):
             e.timestamp = datetime.utcnow()
             await review_channel.send(embed=e)
             await ctx.send("Thank you for the review! <a:CommiePet:1276110509405372509>", ephemeral=True)
+        except Exception as e:
+            print(f"Error in review command: {e}")
+
+    @commands.hybrid_command(description="Invite Commie to your server!")
+    async def invite(self, ctx):
+        try:
+            e = discord.Embed(color=commie_color)
+            e.set_author(name="Commie Links", icon_url=commie_logo)
+            e.set_thumbnail(url=commie_logo)
+            e.description = f"> <a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)\n> <:Discord:1143769008420692009> [Support Server](https://discord.gg/t9g3Wbt9Sj)\n> <:GitHub:1123773190238392504> [Commie's GitHub](<https://github.com/GamingDerp/Commie/tree/main>)"
+            e.set_footer(text="Thank you, comrade!")
+            await ctx.send(embed=e)
         except Exception as e:
             print(f"Error in review command: {e}")
 
