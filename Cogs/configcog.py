@@ -118,22 +118,6 @@ class ConfigCog(commands.Cog):
         e.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
         return await ctx.send(f"Mention (**@**) your **{role_type}** role(s)! Say '**done**' when all **{role_type}** role(s) have been added! Say '**skip**' to move to the next role without adding **{role_type}** role(s)!", embed=e)
 
-    @commands.command()
-    async def updatedb(self, ctx):
-        if ctx.author.id == owner_id:
-            try:
-                async with aiosqlite.connect("dbs/configs.db") as db:
-                    await db.execute('''
-                        ALTER TABLE server_configs
-                        ADD COLUMN blocked_categories TEXT DEFAULT ''
-                    ''')
-                    await db.commit()
-                await ctx.send("Database schema updated successfully!", ephemeral=True)
-            except Exception as e:
-                await ctx.send(f"An error occurred while updating the database: {e}", ephemeral=True)
-        else:
-            return
-
     @commands.hybrid_group(name="toggle", description="Toggle features for the server")
     async def toggle_group(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -637,15 +621,17 @@ class ConfigCog(commands.Cog):
             e.description = ("Create and send your welcome message! You can use the following variables:\n"
                              "> 📑 `{name}` = **User's username**\n"
                              "> 🔔 `{mention}` = **Mentions the user**\n"
-                             "> 📰 `{server}` = **Server name**\n\n"
-                             "**Example:** `Welcome {mention} to {server}!`")
+                             "> 📰 `{server}` = **Server name**\n"
+                             "> 👥 `{membercount}` = **Number of non-bot users**\n\n"
+                             "**Example:** `Welcome {mention} to {server}! We now have {membercount} members!`")
             await ctx.send(embed=e)
             def check(message):
                 return message.author == ctx.author and message.channel == ctx.channel
             while True:
                 msg = await self.bot.wait_for('message', check=check)
                 welcome_message = msg.content
-                preview_message = welcome_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
+                member_count = len([m for m in ctx.guild.members if not m.bot])
+                preview_message = welcome_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name, membercount=member_count)
                 confirm_embed = discord.Embed(color=commie_color)
                 confirm_embed.set_author(name=f"{ctx.guild.name}'s Welcome Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
                 confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
@@ -688,15 +674,17 @@ class ConfigCog(commands.Cog):
             e.description = ("Create and send your leave message! You can use the following variables:\n"
                              "> 📑 `{name}` = **User's username**\n"
                              "> 🔔 `{mention}` = **Mentions the user**\n"
-                             "> 📰 `{server}` = **Server name**\n\n"
-                             "**Example:** `{name} has left {server}!`")
+                             "> 📰 `{server}` = **Server name**\n"
+                             "> 👥 `{membercount}` = **Number of non-bot users**\n\n"
+                             "**Example:** `{name} has left {server}. We now have {membercount} members!`")
             await ctx.send(embed=e)
             def check(message):
                 return message.author == ctx.author and message.channel == ctx.channel
             while True:
                 msg = await self.bot.wait_for('message', check=check)
                 leave_message = msg.content
-                preview_message = leave_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name)
+                member_count = len([m for m in ctx.guild.members if not m.bot])
+                preview_message = leave_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name, membercount=member_count)
                 confirm_embed = discord.Embed(color=commie_color)
                 confirm_embed.set_author(name=f"{ctx.guild.name}'s Leave Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
                 confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
