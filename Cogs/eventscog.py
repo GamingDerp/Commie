@@ -108,7 +108,13 @@ class EventsCog(commands.Cog):
             if welcome_status and welcome_channel_id and welcome_message:
                 welcome_channel = self.bot.get_channel(welcome_channel_id)
                 if welcome_channel:
-                    welcome_text = welcome_message.format(name=member.name, mention=member.mention, server=member.guild.name)
+                    member_count = len([m for m in member.guild.members if not m.bot])
+                    welcome_text = welcome_message.format(
+                        name=member.name,
+                        mention=member.mention,
+                        server=member.guild.name,
+                        membercount=member_count
+                    )
                     await welcome_channel.send(welcome_text)
             autorole_status = config.get("toggle_autorole")
             if autorole_status:
@@ -132,7 +138,13 @@ class EventsCog(commands.Cog):
             if leave_status and leave_channel_id and leave_message:
                 leave_channel = self.bot.get_channel(leave_channel_id)
                 if leave_channel:
-                    leave_text = leave_message.format(name=member.name, mention=member.mention, server=member.guild.name)
+                    member_count = len([m for m in member.guild.members if not m.bot])
+                    leave_text = leave_message.format(
+                        name=member.name,
+                        mention=member.mention,
+                        server=member.guild.name,
+                        membercount=member_count
+                    )
                     await leave_channel.send(leave_text)
         except Exception as e:
             print(e)
