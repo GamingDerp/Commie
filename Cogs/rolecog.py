@@ -396,13 +396,15 @@ class RoleCog(commands.Cog):
             if not menu or menu['guild_id'] != ctx.guild.id:
                 await ctx.send(f"Invalid **Menu ID** or this menu does not belong to **{ctx.guild.name}**")
                 return
-            embed = discord.Embed(title=menu["title"], description=menu["description"], color=menu["color"])
-            for role_id, role_data in menu["roles"].items():
-                role = ctx.guild.get_role(int(role_id))
-                if role_data["description"]:
-                    embed.description += f"\n{role_data['emoji']} {role.mention}: {role_data['description']}"
-                else:
-                    embed.description += f"\n{role_data['emoji']} {role.mention}"
+            base_description = menu["description"]
+            roles_text = "\n".join([
+                f"{role_data['emoji']} {ctx.guild.get_role(int(role_id)).mention}: {role_data['description']}"
+                if role_data["description"] else f"{role_data['emoji']} {ctx.guild.get_role(int(role_id)).mention}"
+                for role_id, role_data in menu["roles"].items()
+            ])
+            full_description = base_description.split("\n")[0]
+            full_description += f"\n{roles_text}" if roles_text else ""
+            embed = discord.Embed(title=menu["title"], description=full_description, color=menu["color"])
             message = await ctx.send(embed=embed)
             if menu["selection_format"] == "reactions":
                 for role_data in menu["roles"].values():
@@ -416,10 +418,10 @@ class RoleCog(commands.Cog):
                     view.add_item(button)
                 await message.edit(view=view)
             elif menu["selection_format"] == "dropdown":
-                options = []
-                for role_id, role_data in menu["roles"].items():
-                    role = ctx.guild.get_role(int(role_id))
-                    options.append(discord.SelectOption(label=role.name, emoji=role_data["emoji"], value=str(role_id)))
+                options = [
+                    discord.SelectOption(label=ctx.guild.get_role(int(role_id)).name, emoji=role_data["emoji"], value=str(role_id))
+                    for role_id, role_data in menu["roles"].items()
+                ]
                 select = discord.ui.Select(placeholder="Choose your role...", options=options)
                 select.callback = self.handle_select
                 view = discord.ui.View()
@@ -559,7 +561,7 @@ class RoleCog(commands.Cog):
                         continue
                     menu["roles"][str(role.id)] = {"emoji": emoji, "description": description}
                     await self.save_menu(menu_id, menu["message_id"], menu["guild_id"], menu["selection_format"], menu["title"], menu["description"], menu["color"], menu["include_role_name"], menu["roles"])
-                    await interaction.followup.send(f"**{role.name}** added to **{menu['title']}**", ephemeral=True)
+                    await interaction.followup.send(f"✅ **{role.name}** added! Use `/menu send {menu_id}` to resend the menu.", ephemeral=True)
                     await msg.delete()
                 await interaction.message.delete()
             elif action == "remove":
