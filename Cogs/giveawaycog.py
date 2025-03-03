@@ -44,77 +44,93 @@ class GiveawayCog(commands.Cog):
             return
         converted_duration = self.convert_duration(time)
         if converted_duration == -1:
-            await ctx.send("Invalid duration format! Please use **s**, **m**, **h**, or **d**.")
+            await ctx.send("Invalid duration format! Please use **s**, **m**, **h**, or **d**.", ephemeral=True)
             return
-        end_time = datetime.utcnow() + converted_duration
         e = discord.Embed(
             title="🎉 Giveaway 🎉",
             color=commie_color
         )
-        e.add_field(
-            name="Time",
-            value=f"⏰ {time}",
-            inline=False
-        )
-        e.add_field(
-            name="Prize",
-            value=f"🎁 {prize}",
-            inline=False
-        )
-        e.add_field(
-            name="Entries",
-            value=f"📬 0",
-            inline=False
+        e.add_field(name="Time", value=f"⏰ {time}", inline=False)
+        e.add_field(name="Prize", value=f"🎁 {prize}", inline=False)
+        e.add_field(name="Entries", value=f"📬 0", inline=False)
+        join_button = discord.ui.Button(
+            style=discord.ButtonStyle.secondary, 
+            label="📮 Join", 
+            custom_id=f"join_{ctx.channel.id}_{ctx.message.id}"
         )
         view = discord.ui.View()
-        view.add_item(discord.ui.Button(style=discord.ButtonStyle.secondary, label="📮 Join", custom_id="join"))
-        message = await ctx.send(embed=e, view=view)
+        view.add_item(join_button)
+        giveaway_message = await ctx.send(embed=e, view=view)
+        giveaway_key = (ctx.guild.id, giveaway_message.id)
+        self.participants[giveaway_key] = []
         await asyncio.sleep(converted_duration.total_seconds())
-        giveaway_key = (ctx.guild.id, message.id)
-        if giveaway_key not in self.participants:
+        if not self.participants[giveaway_key]:
             await ctx.send("No participants in the giveaway.")
-            return
-        winner = random.choice(self.participants[giveaway_key])
-        winner_text = f"<@{winner}>"
-        winners_embed = discord.Embed(
-            title="🎉 Giveaway Results 🎉",
-            description=f"**🎁 Prize:** {prize}\n**👑 Winner:** {winner_text}",
-            color=commie_color
-        )
-        await ctx.send(embed=winners_embed)
-        view.clear_items()
-        await message.edit(view=view)
-        del self.participants[giveaway_key]
+        else:
+            winner = random.choice(self.participants[giveaway_key])
+            winner_text = f"<@{winner}>"
+            winners_embed = discord.Embed(
+                title="🎉 Giveaway Results 🎉",
+                description=f"**🎁 Prize:** {prize}\n**👑 Winner:** {winner_text}",
+                color=commie_color
+            )
+            await ctx.send(embed=winners_embed)
+        try:
+            original_message = await ctx.channel.fetch_message(giveaway_message.id)
+            disabled_view = discord.ui.View()
+            disabled_button = discord.ui.Button(
+                style=discord.ButtonStyle.secondary, 
+                label="📮 Join", 
+                custom_id=f"join_{ctx.channel.id}_{giveaway_message.id}",
+                disabled=True
+            )
+            disabled_view.add_item(disabled_button)
+            await original_message.edit(view=disabled_view)
+        except discord.NotFound:
+            print("Giveaway message not found! It may have been deleted.")
+        except discord.HTTPException as e:
+            print(f"Failed to edit giveaway message: {e}")
+        self.participants[giveaway_key] = self.participants.get(giveaway_key, [])
 
     @commands.Cog.listener()
     async def on_interaction(self, interaction):
         try:
-            if interaction.type == discord.InteractionType.component:
-                if interaction.data['custom_id'] == 'join':
-                    user = interaction.user
-                    giveaway_key = (interaction.guild.id, interaction.message.id)
-                    if giveaway_key not in self.participants:
-                        self.participants[giveaway_key] = []
-                    if not self.has_joined(user, giveaway_key):
-                        self.participants[giveaway_key].append(user.id)
-                        entries = len(self.participants.get(giveaway_key, []))
-                        e = interaction.message.embeds[0]
-                        e.set_field_at(2, name="Entries", value=f"📬 {entries}", inline=False)
-                        await interaction.message.edit(embed=e)
-                        e = discord.Embed(color=commie_color)
-                        e.title = f"🎉 Giveaway Joined! 🎉"
-                        e.description = f"You joined the giveaway!"
-                        await interaction.response.send_message(embed=e, ephemeral=True)
-                    else:
-                        self.participants[giveaway_key].remove(user.id)
-                        entries = len(self.participants.get(giveaway_key, []))
-                        e = interaction.message.embeds[0]
-                        e.set_field_at(2, name="Entries", value=f"📬 {entries}", inline=False)
-                        await interaction.message.edit(embed=e)
-                        e = discord.Embed(color=commie_color)
-                        e.title = f"🎉 Giveaway Left! 🎉"
-                        e.description = f"You left the giveaway!"
-                        await interaction.response.send_message(embed=e, ephemeral=True)
+            if interaction.type == discord.InteractionType.component and interaction.data['custom_id'].startswith("join"):
+                giveaway_key = (interaction.guild.id, interaction.message.id)
+                try:
+                    giveaway_message = await interaction.channel.fetch_message(interaction.message.id)
+                    if giveaway_message.components:
+                        button_disabled = giveaway_message.components[0].children[0].disabled
+                        if button_disabled:
+                            await interaction.response.send_message("This giveaway has ended!", ephemeral=True)
+                            return
+                except discord.NotFound:
+                    await interaction.response.send_message("This giveaway has ended!", ephemeral=True)
+                    return
+                if giveaway_key not in self.participants:
+                    await interaction.response.send_message("This giveaway has ended!", ephemeral=True)
+                    return
+                user = interaction.user
+                if not self.has_joined(user, giveaway_key):
+                    self.participants[giveaway_key].append(user.id)
+                    entries = len(self.participants[giveaway_key])
+                    e = interaction.message.embeds[0]
+                    e.set_field_at(2, name="Entries", value=f"📬 {entries}", inline=False)
+                    await interaction.message.edit(embed=e)
+                    e = discord.Embed(color=commie_color)
+                    e.title = "🎉 Giveaway Joined! 🎉"
+                    e.description = "You joined the giveaway!"
+                    await interaction.response.send_message(embed=e, ephemeral=True)
+                else:
+                    self.participants[giveaway_key].remove(user.id)
+                    entries = len(self.participants[giveaway_key])
+                    e = interaction.message.embeds[0]
+                    e.set_field_at(2, name="Entries", value=f"📬 {entries}", inline=False)
+                    await interaction.message.edit(embed=e)
+                    e = discord.Embed(color=commie_color)
+                    e.title = "🎉 Giveaway Left! 🎉"
+                    e.description = "You left the giveaway!"
+                    await interaction.response.send_message(embed=e, ephemeral=True)
         except Exception as e:
             print(e)
 
@@ -135,28 +151,37 @@ class GiveawayCog(commands.Cog):
         if not await self.has_moderator_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
-
         try:
-            last_giveaway_key = max((key for key in self.participants if key[0] == ctx.guild.id), default=None)
-            if last_giveaway_key is not None:
-                last_winners = self.participants.get(last_giveaway_key, [])
-                last_giveaway_message = await ctx.channel.fetch_message(last_giveaway_key[1])
-                if last_winners:
-                    prize = last_giveaway_message.embeds[0].fields[1].value
-                    rerolled_winner = random.choice(last_winners)
-                    winner_text = f"<@{rerolled_winner}>"
-                    winners_embed = discord.Embed(
-                        title="🎉 Giveaway Results (Reroll) 🎉",
-                        description=f"**🎁 Prize:** {prize}\n**👑 Winner:** {winner_text}",
-                        color=commie_color
-                    )
-                    await ctx.send(embed=winners_embed)
-                else:
-                    await ctx.send("No participants in the last giveaway.", ephemeral=True)
-            else:
+            last_giveaway_key = max(
+                (key for key in self.participants if key[0] == ctx.guild.id),
+                default=None
+            )
+            if last_giveaway_key is None:
                 await ctx.send("No giveaway has been conducted yet.", ephemeral=True)
+                return
+            last_winners = self.participants.get(last_giveaway_key, [])
+            if not last_winners:
+                await ctx.send("No participants in the last giveaway.", ephemeral=True)
+                return
+            try:
+                last_giveaway_message = await ctx.channel.fetch_message(last_giveaway_key[1])
+            except discord.NotFound:
+                await ctx.send("The last giveaway message was deleted, cannot reroll.", ephemeral=True)
+                return
+            try:
+                prize_field = last_giveaway_message.embeds[0].fields[1].value
+            except (IndexError, AttributeError):
+                prize_field = "Unknown Prize"
+            rerolled_winner = random.choice(last_winners)
+            winner_text = f"<@{rerolled_winner}>"
+            winners_embed = discord.Embed(
+                title="🎉 Giveaway Results (Reroll) 🎉",
+                description=f"**🎁 Prize:** {prize_field}\n**👑 New Winner:** {winner_text}",
+                color=commie_color
+            )
+            await ctx.send(embed=winners_embed)
         except Exception as e:
-            print(e)
+            print(f"Error in reroll: {e}")
 
 async def setup(bot):
     await bot.add_cog(GiveawayCog(bot))
