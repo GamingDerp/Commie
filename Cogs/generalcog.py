@@ -191,7 +191,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Links",
-                value=f"<a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)"
+                value=f"<a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=1632493759575&integration_type=0&scope=bot>)"
                       f"\n<:Discord:1143769008420692009> [Support Server](https://discord.gg/t9g3Wbt9Sj)"
                       f"\n📮 [Vote for Commie](<https://top.gg/bot/1258968199899381771>)"
                       f"\n💰 [Tip Commie](<https://en.liberapay.com/CommieBot/>)"
@@ -207,7 +207,7 @@ class GeneralCog(commands.Cog):
         e = discord.Embed(color=commie_color)
         e.set_author(name="About Commie", icon_url=commie_logo)
         e.set_thumbnail(url=commie_logo)
-        e.description = "### ❓ What does Commie do? ❓ \n> **Commie** is a multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy! \n### 💎 How can I support Commie? 💎 \n> Since **Commie** has no 'premium' features, you can [**donate**](<https://en.liberapay.com/CommieBot/>), boost the [**Commie Support Server**](<https://discord.gg/t9g3Wbt9Sj>), or [**vote**](<https://discordbotlist.com/bots/commie>) for **Commie** on the linked websites (checkout the `vote` command!) You can recommend **Commie** to other users as well! *Thank you for the support!* <a:CommiePet:1258041355012149328> \n### ⚙️ What does Commie run on? ⚙️ \n> <:Python:1260446899014602822> [Python](<https://www.python.org/downloads/release/python-3124/>) 3.12.4 \n> <:DiscordPY:1260446897894719518> [Discord.py](<https://github.com/Rapptz/discord.py>) 2.4.0"
+        e.description = "### ❓ What does Commie do? ❓ \n> **Commie** is a multi-purpose Discord bot that makes your server more customizable! It helps with and handles features like moderation, event logging, starboard, suggestions, welcome, leave and boost messages, and has fun and action commands for everyone to enjoy! \n### 💎 How can I support Commie? 💎 \n> Since **Commie** has no 'premium' features, you can [**donate**](<https://en.liberapay.com/CommieBot/>), boost the [**Commie Support Server**](<https://discord.gg/t9g3Wbt9Sj>), or [**vote**](<https://discordbotlist.com/bots/commie>) for **Commie** on the linked websites (checkout the `vote` command!) You can recommend **Commie** to other users as well! *Thank you for the support!* <a:CommiePet:1258041355012149328> \n### ⚙️ What does Commie run on? ⚙️ \n> <:Python:1260446899014602822> [Python](<https://www.python.org/downloads/release/python-3124/>) 3.12.4 \n> <:DiscordPY:1260446897894719518> [Discord.py](<https://github.com/Rapptz/discord.py>) 2.5.0"
         await ctx.send(embed=e, ephemeral=True)
 
     @commands.hybrid_command(description="Setup Commie")
@@ -360,7 +360,7 @@ class GeneralCog(commands.Cog):
             e = discord.Embed(color=commie_color)
             e.set_author(name="Commie Links", icon_url=commie_logo)
             e.set_thumbnail(url=commie_logo)
-            e.description = f"> <a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=8&integration_type=0&scope=bot&utm_source=discordbotlist.com&utm_medium=bot_page>)\n> <:Discord:1143769008420692009> [Support Server](https://discord.gg/t9g3Wbt9Sj)\n> <:GitHub:1123773190238392504> [Commie's GitHub](<https://github.com/GamingDerp/Commie/tree/main>)"
+            e.description = f"> <a:CommiePet:1276110509405372509> [Add Commie](<https://discord.com/oauth2/authorize?client_id=1258968199899381771&permissions=1632493759575&integration_type=0&scope=bot>)\n> <:Discord:1143769008420692009> [Support Server](https://discord.gg/t9g3Wbt9Sj)\n> <:GitHub:1123773190238392504> [Commie's GitHub](<https://github.com/GamingDerp/Commie/tree/main>)"
             e.set_footer(text="Thank you, comrade!")
             await ctx.send(embed=e)
         except Exception as e:
