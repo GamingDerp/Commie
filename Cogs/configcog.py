@@ -132,8 +132,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             logging_enabled = config.get('toggle_logging', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="📋 Logging", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="📋 Logging", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the logging feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             enable_button = discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_log_enable")
@@ -182,8 +182,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             suggestions_enabled = config.get('toggle_suggest', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="💡 Suggestions", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="💡 Suggestions", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the suggestions feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_suggest_enable"))
@@ -224,8 +224,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             starboard_enabled = config.get('toggle_starboard', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="⭐️ Starboard", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="⭐️ Starboard", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the starboard feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_star_enable"))
@@ -266,8 +266,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             welcome_enabled = config.get('toggle_welcome', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="👋 Welcome Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="👋 Welcome Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the welcome messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_welcome_enable"))
@@ -308,8 +308,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             leave_enabled = config.get('toggle_leave', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="🚫 Leave Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="🚫 Leave Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = (f"Toggle the leave messages feature for **{ctx.guild.name}**. "
                              "Click the **'Enable'** button to enable or the **'Disable'** button to disable it.")
             view = discord.ui.View()
@@ -351,8 +351,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             boost_enabled = config.get('toggle_boost', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="Boost Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="Boost Messages", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the boost messages feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_boost_enable"))
@@ -393,8 +393,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             autorole_enabled = config.get('toggle_autorole', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="🤖 Autorole", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="🤖 Autorole", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the autorole feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             view.add_item(discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_autorole_enable"))
@@ -435,8 +435,8 @@ class ConfigCog(commands.Cog):
             config = await self.get_config(ctx.guild.id) or {}
             filter_enabled = config.get('toggle_filter', False)
             e = discord.Embed(color=commie_color)
-            e.set_author(name="🔇 Chat Filter", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="🔇 Chat Filter", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = f"Toggle the chat filter feature for **{ctx.guild.name}**. Click the **'Enable'** button to enable or the **'Disable'** button to disable it."
             view = discord.ui.View()
             enable_button = discord.ui.Button(style=discord.ButtonStyle.success, label="✅ Enable", custom_id="toggle_filter_enable")
@@ -499,8 +499,8 @@ class ConfigCog(commands.Cog):
             return
         try:
             e = discord.Embed(color=commie_color)
-            e.set_author(name="Staff Roles", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="Staff Roles", icon_url = ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = (f"To set the 'staff' roles for **{ctx.guild.name}**, click the **'Start'** button down below! \n\n### ⚖️ Role Ranks \n> - **Admin** | "
                              f"*Has access to the 'config' commands, ex: `setstaff`, and all staff commands* \n> - **Moderator** | "
                              f"*Has access to various staff commands, ex: `ban`, `gulag`* \n> - **Helper** | *Has access to smaller staff commands, ex: `kick`, `warn`* \n\n*Be careful who you give access!*")
@@ -616,8 +616,8 @@ class ConfigCog(commands.Cog):
             return
         try:
             e = discord.Embed(color=commie_color)
-            e.set_author(name="Welcome Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="Welcome Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = ("Create and send your welcome message! You can use the following variables:\n"
                              "> 📑 `{name}` = **User's username**\n"
                              "> 🔔 `{mention}` = **Mentions the user**\n"
@@ -633,8 +633,8 @@ class ConfigCog(commands.Cog):
                 member_count = len([m for m in ctx.guild.members if not m.bot])
                 preview_message = welcome_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name, membercount=member_count)
                 confirm_embed = discord.Embed(color=commie_color)
-                confirm_embed.set_author(name=f"{ctx.guild.name}'s Welcome Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-                confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+                confirm_embed.set_author(name=f"{ctx.guild.name}'s Welcome Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+                confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
                 confirm_embed.description = (f"*Does this look correct? If not, click* ***No*** *and remake it!*\n\n"
                                              f"{preview_message}")
                 view = discord.ui.View()
@@ -669,8 +669,8 @@ class ConfigCog(commands.Cog):
             return
         try:
             e = discord.Embed(color=commie_color)
-            e.set_author(name="Leave Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="Leave Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = ("Create and send your leave message! You can use the following variables:\n"
                              "> 📑 `{name}` = **User's username**\n"
                              "> 🔔 `{mention}` = **Mentions the user**\n"
@@ -686,8 +686,8 @@ class ConfigCog(commands.Cog):
                 member_count = len([m for m in ctx.guild.members if not m.bot])
                 preview_message = leave_message.format(name=ctx.author.name, mention=ctx.author.mention, server=ctx.guild.name, membercount=member_count)
                 confirm_embed = discord.Embed(color=commie_color)
-                confirm_embed.set_author(name=f"{ctx.guild.name}'s Leave Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-                confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+                confirm_embed.set_author(name=f"{ctx.guild.name}'s Leave Message", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+                confirm_embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
                 confirm_embed.description = (f"*Does this look correct? If not, click* ***No*** *and remake it!*\n\n"
                                              f"{preview_message}")
                 view = discord.ui.View()
@@ -722,8 +722,8 @@ class ConfigCog(commands.Cog):
             return
         try:
             e = discord.Embed(color=commie_color)
-            e.set_author(name="Boost Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name="Boost Message Setup", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             e.description = ("You can use the following variables in your boost message:\n"
                             "📑 `{name}` = **Boosting member's name**\n"
                             "🔔 `{mention}` = **Mentions the Boosting member**\n"
@@ -834,8 +834,8 @@ class ConfigCog(commands.Cog):
 
     def format_embed(self, ctx, admin_roles, moderator_roles, helper_roles):
         embed = discord.Embed(color=commie_color)
-        embed.set_author(name=f"{ctx.guild.name} Staff Roles", icon_url=ctx.guild.icon.url)
-        embed.set_thumbnail(url=ctx.guild.icon.url)
+        embed.set_author(name=f"{ctx.guild.name} Staff Roles", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+        embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
         embed.title = f"{ctx.guild.name} Staff Roles"
         embed.description = self.format_roles_embed(admin_roles, moderator_roles, helper_roles)
         return embed
@@ -1127,8 +1127,8 @@ class ConfigCog(commands.Cog):
                 await ctx.send(f"**{ctx.guild.name}'s** chat filter is **disabled**! To enable it do `/toggle filter`!", ephemeral=True)
                 return
             e = discord.Embed(color=commie_color)
-            e.set_author(name=f"{ctx.guild.name} Chat Filter Settings", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name=f"{ctx.guild.name} Chat Filter Settings", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             filtered_words = config.get('filtered_words', '').split(',')
             filtered_words_display = ', '.join([f"{word}" for word in filtered_words if word]) or "None"
             e.add_field(name="📑 Filtered Words", value=f"> {filtered_words_display}", inline=False)
@@ -1174,8 +1174,8 @@ class ConfigCog(commands.Cog):
                 await ctx.send(f"No configurations found for **{ctx.guild.name}**.", ephemeral=True)
                 return
             e = discord.Embed(color=commie_color)
-            e.set_author(name=f"{ctx.guild.name} Configurations", icon_url=ctx.guild.icon.url if ctx.guild.icon else None)
-            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+            e.set_author(name=f"{ctx.guild.name} Configurations", icon_url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
+            e.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else commie_logo)
             def add_field(field_name, value, inline=False):
                 e.add_field(name=field_name, value=value, inline=inline)
             def add_toggle_field(field_name, toggle_key, channel_key=None, extra_info=None, is_role_list=False):
