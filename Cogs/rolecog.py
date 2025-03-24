@@ -22,7 +22,7 @@ color_mapping = {
 }
 
 custom_emoji_pattern = re.compile(r"^<a?:\w+:\d+>$")
-default_emoji_pattern = re.compile(r"[\U0001F300-\U0001FAFF]|[\u2600-\u27BF]")
+default_emoji_pattern = re.compile(r"[\U0001F1E6-\U0001F1FF]|[\u0030-\u0039]\uFE0F?\u20E3|[\U0001F300-\U0001FAFF]|[\u2600-\u27BF]")
 
 class RoleCog(commands.Cog):
     def __init__(self, bot):
