@@ -184,7 +184,7 @@ class EventsCog(commands.Cog):
                 "> <a:Boost:1258934863529246762> **Configure boost messages:** `/setboost`\n"
                 "> 🎭 **Configure auto roles:** `/setautoroles`\n"
                 f"> ⚙️ **Show {guild.name}'s Configurations:** `/configs`\n"
-                "\n*If you need any help, feel free to join our* [***Support Server***](https://discord.gg/t9g3Wbt9Sj)*!*."
+                "\n*If you need any help, feel free to join our* [***Support Server***](https://discord.gg/t9g3Wbt9Sj)*!*"
                 )
             if guild.system_channel:
                 await guild.system_channel.send(embed=setup_embed)
