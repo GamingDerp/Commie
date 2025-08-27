@@ -227,8 +227,13 @@ class StaffCog(commands.Cog):
         except Exception as e:
             print(f"Error in ungulag command: {e}")
 
-    @commands.hybrid_command(description="Warn a user")
-    async def warn(self, ctx, member: discord.Member, *, reason=None):
+    @commands.hybrid_group(name="warn", description="User warn commands")
+    async def warn(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await ctx.send("Use a subcommand.", ephemeral=True)
+
+    @warn.command(description="Warn a user")
+    async def user(self, ctx, member: discord.Member, *, reason=None):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -244,8 +249,8 @@ class StaffCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="See a user's warns")
-    async def warnlist(self, ctx, member: discord.Member):
+    @warn.command(description="See a user's warns")
+    async def list(self, ctx, member: discord.Member):
         if not await self.has_helper_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -267,8 +272,8 @@ class StaffCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Delete a user's warns")
-    async def delwarn(self, ctx, member: discord.Member, warn_number: int):
+    @warn.command(description="Delete a user's warns")
+    async def delete(self, ctx, member: discord.Member, warn_number: int):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -286,8 +291,8 @@ class StaffCog(commands.Cog):
         except Exception as e:
             print(e)
 
-    @commands.hybrid_command(description="Clear all warns for a user")
-    async def clearwarns(self, ctx, member: discord.Member):
+    @warn.command(description="Clear all warns for a user")
+    async def clear(self, ctx, member: discord.Member):
         if not await self.has_admin_role(ctx.author, ctx.guild.id):
             await ctx.send("You don't have the required permissions for this command!", ephemeral=True, delete_after=10)
             return
@@ -314,12 +319,12 @@ class StaffCog(commands.Cog):
                 e = discord.Embed(color=commie_color)
                 e.set_author(name=action)
                 e.set_thumbnail(url=member.avatar.url)
-                e.add_field(name="__Member__", value=f"> {member.mention}", inline=False)
+                e.add_field(name="📌 Staff Member", value=f"> {ctx.author.mention}", inline=False)
+                e.add_field(name="📌 Member", value=f"> {member.mention}", inline=False)
                 if reason:
-                    e.add_field(name="__Reason__", value=f"> {reason}", inline=False)
+                    e.add_field(name="📑 Reason", value=f"> {reason}", inline=False)
                 if duration:
-                    e.add_field(name="__Duration__", value=f"> {duration}", inline=False)
-                e.add_field(name="__Staff Member__", value=f"> {ctx.author.mention}", inline=False)
+                    e.add_field(name="⏳ Duration", value=f"> {duration}", inline=False)
                 e.timestamp = datetime.utcnow()
                 await channel.send(embed=e)
         except discord.Forbidden:
