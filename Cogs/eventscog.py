@@ -55,6 +55,8 @@ class EventsCog(commands.Cog):
                     return
                 if reaction.count >= star_count and reaction.message.id not in self.processed_messages:
                     starboard_channel = self.bot.get_channel(starboard_channel_id)
+                    if reaction.message.channel.id == starboard_channel_id:
+                        return
                     if starboard_channel:
                         e = discord.Embed(color=0xF7c11e)
                         e.set_author(name=reaction.message.author.display_name, icon_url=reaction.message.author.avatar.url)
