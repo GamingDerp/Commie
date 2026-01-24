@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from datetime import datetime
+from datetime import datetime, timedelta, UTC
 import asyncio
 import aiosqlite
 import requests
@@ -222,6 +222,27 @@ class MiscCog(commands.Cog):
             time_str += f"{int(minutes)}m "
         time_str += f"{int(seconds)}s"
         return time_str
+
+    @commands.hybrid_command(name="timestamp", description="Input the amount of time from the current moment to generate your timestamp")
+    async def timestamp(self, ctx, years: int | None = None, months: int | None = None, days: int | None = None, hours: int | None = None, minutes: int | None = None):
+        try:
+            now = datetime.now(UTC)
+            years = years or 0
+            months = months or 0
+            days = days or 0
+            hours = hours or 0
+            minutes = minutes or 0
+            total_days = days + (months * 30) + (years * 365)
+            future_time = now + timedelta(days=total_days, hours=hours, minutes=minutes)
+            unix_ts = int(future_time.timestamp())
+            embed = discord.Embed(color=commie_color)
+            embed.set_author(name="⏰ Generated Timestamp ⏰")
+            embed.set_thumbnail(url=commie_logo)
+            embed.description = (f"> `<t:{unix_ts}:t>` **|** <t:{unix_ts}:t> \n> `<t:{unix_ts}:s>` **|** <t:{unix_ts}:s> \n> `<t:{unix_ts}:f>` **|** <t:{unix_ts}:f> \n> `<t:{unix_ts}:F>` **|** <t:{unix_ts}:F>")
+            embed.set_footer(text=f"Offset Used: {years}y {months}mo {days}d {hours}h {minutes}m")
+            await ctx.send(embed=embed, ephemeral=True)
+        except Exception as e:
+            print(e)
     
     @commands.hybrid_command(description="Fetch a user's avatar")
     async def avatar(self, ctx, member: discord.Member = None):
