@@ -26,7 +26,7 @@ fe.set_author(name="Commie Commands", icon_url=commie_logo)
 fe.set_thumbnail(url=commie_logo)
 fe.add_field(
     name="🎉 __Fun Commands__",
-    value=f"> `Uno`, `Coinflip`, `Ask`, `Reverse`, `Say`, `Lovetest`, `Cute`",
+    value=f"> `Coinflip`, `Ask`, `Reverse`, `Say`, `Lovetest`, `Cute`",
 )
 
 ae = discord.Embed(color=commie_color)
@@ -42,7 +42,7 @@ me.set_author(name="Commie Commands", icon_url=commie_logo)
 me.set_thumbnail(url=commie_logo)
 me.add_field(
     name="🧮 __Misc Commands__",
-    value=f"> `Whois`, `Avatar`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `CardShow`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `TodoAdd`, `TodoDel`, `TodoList`, `TodoClear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
+    value=f"> `Whois`, `Avatar`, `Snipe`, `Remind`, `RemindList` `Afk`, `ClimateClock`, `Timestamp`, `CardShow`, `CardNickname`, `CardBio`, `CardAge`, `CardPronouns`, `CardBirthday`, `CardIdeology`, `CardColor`, `CardColorChoices`, `TodoAdd`, `TodoDel`, `TodoList`, `TodoClear`, `Giveaway`, `Reroll`, `EmojiSteal`, `EmojiAdd`, `EmojiDel`, `EmojiInfo`, `EmojiRename`, `StickerSteal`, `StickerAdd`, `StickerDel`, `StickerInfo`, `StickerRename`",
 )
 
 se = discord.Embed(color=commie_color)
@@ -58,18 +58,18 @@ ce.set_author(name="Commie Commands", icon_url=commie_logo)
 ce.set_thumbnail(url=commie_logo)
 ce.add_field(
     name="⚙️ __Config Commands__",
-    value=f"> `SetPrefix`, `SetStaff`, `SetLog`, `SetSuggest`, `SetStar`, `SetWelcome`, `SetLeave`, `SetBoost`, `SetAutoRole`, `ToggleLog`, `ToggleSuggest`, `ToggleStar`, `ToggleWelcome`, `ToggleLeave`, `ToggleBoost`, `ToggleAutoRole`, `ToggleFilter`, `FilterHelp`, `FilterShow`, `FilterDefaults`, `FilterAdd`, `FilterRemove`, `FilterIgnore`, `FilterUnignore`, `FilterBlock`, `FilterUnblock`, `FilterClear`, `TestWelcome`, `TestLeave`, `TestBoost`, `Configs`",
+    value=f"> `SetPrefix`, `SetStaff`, `SetLog`, `SetSuggest`, `SetStar`, `SetWelcome`, `SetLeave`, `SetBoost`, `SetAutoRole`, `ToggleLog`, `ToggleSuggest`, `ToggleStar`, `ToggleWelcome`, `ToggleLeave`, `ToggleBoost`, `ToggleAutoRole`, `ToggleFilter`, `FilterHelp`, `FilterShow`, `FilterDefaults`, `FilterAdd`, `FilterRemove`, `FilterIgnore`, `FilterUnignore`, `FilterBlock`, `FilterUnblock`, `FilterClear`, `TestWelcome`, `TestLeave`, `TestBoost`, `Configs`, `ConfigsClear`",
 )
 
 class Dropdown(discord.ui.Select):
     def __init__(self):
         options = [
             discord.SelectOption(label="General Commands", description="Help, Info, Setup, About, Vote +5 More", emoji="📌"),
-            discord.SelectOption(label="Fun Commands", description="Uno, Coinflip, Ask, Reverse, Say, +2 More", emoji="🎉"),
+            discord.SelectOption(label="Fun Commands", description="Coinflip, Ask, Reverse, Say, Lovetest +1 More", emoji="🎉"),
             discord.SelectOption(label="Action Commands", description="Highfive, Poke, Pat, Hug, Kiss +7 More", emoji="🎯"),
             discord.SelectOption(label="Misc Commands", description="Whois, Snipe, Remind, Afk, ClimateClock +26 More", emoji="🧮"),
             discord.SelectOption(label="Staff Commands", description="Purge, Ban, Unban, Kick, Gulag +14 More", emoji="🔰"),
-            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +26 More", emoji="⚙️"),
+            discord.SelectOption(label="Config Commands", description="SetPrefix, SetStaff, SetLog, SetSuggest, SetStar +27 More", emoji="⚙️"),
         ]
         super().__init__(min_values=1, max_values=1, options=options)
 
@@ -176,7 +176,7 @@ class GeneralCog(commands.Cog):
             )
             e.add_field(
                 name="✯ Commie Info",
-                value=f"> **Commands:** [117]"
+                value=f"> **Commands:** [118]"
                       f"\n> **Servers:** {total_guilds}"
                       f"\n> **Comrades:** {total_members}"
                       f"\n> **Ping:** {round(self.bot.latency * 1000)}ms"
